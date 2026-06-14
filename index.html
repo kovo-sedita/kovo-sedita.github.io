@@ -57,8 +57,8 @@ nav{position:sticky;top:0;z-index:50;background:rgba(175,213,234,.82);backdrop-f
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 
 /* ===== Stat band (počet členov) ===== */
-.statband{margin:10px 0 0}
-.stat-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:44px 48px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:30px;width:100%}
+.statband{margin:10px 0 0;background:var(--card);box-shadow:0 10px 40px rgba(27,57,91,.12);}
+.stat-card{max-width:900px;margin:0 auto;padding:44px 48px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:30px;width:100%}
 .stat-num{font-size:clamp(3rem,6vw,4.4rem);font-weight:700;color:var(--navy);line-height:1}
 .stat-label{font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;font-weight:600;color:var(--soft);margin-top:8px}
 .vline{width:4px;align-self:stretch;background:var(--brand);border-radius:2px;margin:6px 0}
@@ -272,8 +272,8 @@ footer a{color:#CFE4F2}
 </header>
 
 <!-- ============ POČET ČLENOV ============ -->
-<div class="wrap statband reveal">
-  <div class="stat-card">
+<div class="statband reveal">
+  <div class="wrap"><div class="stat-card">
     <div>
       <div class="stat-num" id="memberCount">0</div>
       <div class="stat-label">Členov organizácie</div>
@@ -287,7 +287,7 @@ footer a{color:#CFE4F2}
       <div class="chart-cap">Vývoj členskej základne · posledných 12 mesiacov</div>
     </div>
   </div>
-</div>
+</div></div>
 
 <!-- ============ INFO SYSTÉM / NEWSFILTER ============ -->
 <section id="aktuality">
