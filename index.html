@@ -4,7 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ZO OZ KOVO • Sedita — Odborová organizácia</title>
+<meta name="description" content="ZO OZ KOVO Sedita — odborová organizácia zamestnancov v Serede. Aktuality zo sveta práce, kolektívna zmluva, dokumenty a kontakty na výbor.">
+<meta property="og:title" content="ZO OZ KOVO • Sedita — Odborová organizácia">
+<meta property="og:description" content="Chránime práva zamestnancov, vyjednávame férové mzdy a prinášame overené informácie zo sveta pracovného práva.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kovo-sedita.github.io">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%231B395B'/><text x='16' y='23' text-anchor='middle' fill='%23AFD5EA' font-family='Georgia,serif' font-weight='bold' font-size='19'>K</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Lora:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -16,7 +23,10 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Poppins',sans-serif;background:linear-gradient(180deg,#B6D9EC 0%,var(--pastel) 40%,#A6CFE7 100%);color:var(--soft);line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(180deg,#B6D9EC 0%,var(--pastel) 40%,#A6CFE7 100%);color:var(--soft);line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+/* Preskočiť na obsah — prístupnosť */
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--navy);color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;font-size:.84rem;font-weight:600;z-index:200;text-decoration:none;transition:top .15s}
+.skip-link:focus{top:0}
 h1,h2,h3,h4{color:var(--navy);line-height:1.18;font-weight:700}
 a{color:var(--brand);text-decoration:none}
 img{max-width:100%}
@@ -127,6 +137,13 @@ section{padding:78px 0}
 .meet-past li{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(90,130,165,.18);font-size:.88rem}
 .meet-past li:last-child{border-bottom:none}
 .meet-past li span{color:var(--brand-light);font-size:.78rem;font-weight:500;white-space:nowrap}
+.meet-past li a{color:var(--navy);text-decoration:none;font-weight:500}
+.meet-past li a:hover{text-decoration:underline}
+.meet-past li span+*,.meet-past li *+span{flex-shrink:0}
+/* Program schôdze */
+.meet-agenda{list-style:none;margin:0 0 24px;padding:0;display:flex;flex-direction:column;gap:8px}
+.meet-agenda li{font-size:.84rem;color:var(--pastel);padding-left:18px;position:relative;line-height:1.5}
+.meet-agenda li::before{content:"";position:absolute;left:0;top:.55em;width:6px;height:6px;border-radius:50%;background:var(--brand)}
 
 /* ===== Výbor ===== */
 .board-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
@@ -240,6 +257,7 @@ footer a{color:#CFE4F2}
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Preskočiť na obsah</a>
 
 <!-- ============ NAV ============ -->
 <nav>
@@ -280,6 +298,8 @@ footer a{color:#CFE4F2}
     </div>
   </div>
 </header>
+
+<main id="main-content">
 
 <!-- ============ POČET ČLENOV ============ -->
 <div class="statband reveal">
@@ -349,26 +369,8 @@ footer a{color:#CFE4F2}
       <h2>Členské schôdze a zápisnice</h2>
     </div>
     <div class="meet-grid">
-      <div class="meet-hero reveal">
-        <span class="eyebrow">Pozvánka</span>
-        <div class="hairline"></div>
-        <h3>Členská schôdza odborovej organizácie</h3>
-        <div class="meet-info">
-          <div><b>25. júna 2026</b><span>Dátum</span></div>
-          <div><b>15:00</b><span>Čas</span></div>
-          <div><b>Zasadačka</b><span>Miesto</span></div>
-        </div>
-        <a href="#" class="btn" style="background:var(--yellow);color:var(--navy);box-shadow:0 6px 18px rgba(245,202,111,.4)">Potvrdiť účasť</a>
-      </div>
-      <div class="meet-past reveal">
-        <h3>Archív zápisníc</h3>
-        <ul>
-          <li><a href="#">Zápisnica — členská schôdza</a><span>22. 5. 2026</span></li>
-          <li><a href="#">Záznam — stretnutie s HR</a><span>14. 4. 2026</span></li>
-          <li><a href="#">Zápisnica — výborová schôdza</a><span>3. 3. 2026</span></li>
-          <li><a href="#">Zápisnica — ustanovujúca schôdza</a><span>12. 1. 2026</span></li>
-        </ul>
-      </div>
+      <div id="meetNext" class="meet-hero reveal"></div>
+      <div id="meetPast" class="meet-past reveal"></div>
     </div>
   </div>
 </section>
@@ -413,6 +415,8 @@ footer a{color:#CFE4F2}
             </select>
           </div>
           <div class="field"><label for="cmsg">Popis podnetu</label><textarea id="cmsg" required placeholder="Opíšte situáciu…"></textarea></div>
+          <!-- Honeypot — anti-spam: roboty vyplnia toto pole, ľudia nie -->
+          <input type="text" id="chpot" name="website" style="display:none!important" tabindex="-1" autocomplete="off" aria-hidden="true">
           <button class="btn" type="submit">Odoslať podnet</button>
           <div class="form-ok" id="formOk">✓ Ďakujeme. Podnet bol odoslaný výboru ZO OZ KOVO Sedita.</div>
         </form>
@@ -434,6 +438,8 @@ footer a{color:#CFE4F2}
     </div>
   </div>
 </section>
+
+</main>
 
 <!-- ============ FOOTER ============ -->
 <footer>
@@ -462,7 +468,7 @@ footer a{color:#CFE4F2}
       </ul>
     </div>
   </div>
-  <div class="wrap foot-bottom">© 2026 ZO OZ KOVO • Sedita · Prototyp v1 — demo dáta · Dizajn podľa manuálu v3.0</div>
+  <div class="wrap foot-bottom">© 2026 ZO OZ KOVO • Sedita · Všetky práva vyhradené</div>
 </footer>
 
 <script>
@@ -505,6 +511,19 @@ const DEMO = {
     {cat:"tlaciva",name:"Odhláška z OZ KOVO",desc:"Ukončenie členstva",type:"DOC",url:"#"},
     {cat:"tlaciva",name:"Žiadosť o sociálnu výpomoc",desc:"Pre členov ZO",type:"DOC",url:"#"}
   ],
+  meetings: {
+    next: {
+      date:"25. júna 2026",
+      time:"15:00",
+      place:"Zasadačka — budova výroby",
+      agenda:"1. Správa predsedu o činnosti ZO\n2. Stav rokovaní o KZ 2025–2027\n3. Plán aktivít na 2. polrok 2026\n4. Rôzne — diskusia"
+    },
+    past: [
+      {date:"22. 5. 2026", title:"Zápisnica — členská schôdza", minutesUrl:"#"},
+      {date:"14. 3. 2026", title:"Zápisnica — výbor ZO", minutesUrl:"#"},
+      {date:"20. 1. 2026", title:"Zápisnica — mimoriadna schôdza", minutesUrl:"#"}
+    ]
+  },
   board: [
     {name:"Mário Valábek",role:"Predseda ZO",phone:"+421 9xx xxx xxx",email:"mario.valabek@gmail.com"},
     {name:"Meno Priezvisko",role:"Podpredseda",phone:"+421 9xx xxx xxx",email:"podpredseda@priklad.sk"},
@@ -572,9 +591,12 @@ async function renderMembers(){
 let newsData = [];
 function renderNews(cat="all"){
   const grid = document.getElementById("newsGrid");
-  grid.innerHTML = newsData
-    .filter(n => n && (cat==="all" || n.cat===cat))
-    .map(n => `
+  const items = newsData.filter(n => n && (cat==="all" || n.cat===cat));
+  if(!items.length){
+    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Momentálne žiadne aktuality v tejto kategórii.</p>`;
+    return;
+  }
+  grid.innerHTML = items.map(n => `
     <article class="news-card">
       <div class="news-top">
         <span class="tag ${n.status==="platne"?"platne":"navrh"}">${n.status==="platne"?"Platí":"Navrhované"}</span>
@@ -582,7 +604,7 @@ function renderNews(cat="all"){
       </div>
       <h3>${n.title}</h3>
       <p>${n.text}</p>
-      <div class="news-src"><span class="dot"></span>${n.src}<a href="${n.url}">Zdroj →</a></div>
+      <div class="news-src"><span class="dot"></span>${n.src}<a href="${n.url}"${n.url&&n.url!=="+"?" target=\"_blank\" rel=\"noopener\" aria-label=\"Zdroj: "+n.src+"\"":""}>Zdroj →</a></div>
     </article>`).join("");
 }
 document.getElementById("newsChips").addEventListener("click", e=>{
@@ -594,13 +616,17 @@ document.getElementById("newsChips").addEventListener("click", e=>{
 /* ---------- Dokumenty ---------- */
 let docsData = [];
 function renderDocs(cat="all"){
-  document.getElementById("docGrid").innerHTML = docsData
-    .filter(d => d && (cat==="all" || d.cat===cat))
-    .map(d => `
-    <a class="doc-row" href="${d.url}">
+  const grid = document.getElementById("docGrid");
+  const items = docsData.filter(d => d && (cat==="all" || d.cat===cat));
+  if(!items.length){
+    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Dokumenty sa načítavajú alebo žiadne nie sú k dispozícii.</p>`;
+    return;
+  }
+  grid.innerHTML = items.map(d => `
+    <a class="doc-row" href="${d.url}"${d.url&&d.url!="#"?" target=\"_blank\" rel=\"noopener\"":" aria-disabled=\"true\""}>
       <div class="doc-ico ${d.type==="PDF"?"pdf":""}">${d.type}</div>
       <div class="doc-info"><b>${d.name}</b><span>${d.desc}</span></div>
-      <div class="doc-dl">↓</div>
+      <div class="doc-dl" aria-hidden="true">↓</div>
     </a>`).join("");
 }
 document.getElementById("docTabs").addEventListener("click", e=>{
@@ -609,18 +635,69 @@ document.getElementById("docTabs").addEventListener("click", e=>{
   b.classList.add("active"); renderDocs(b.dataset.doc);
 });
 
+/* ---------- Schôdze ---------- */
+function renderMeetings(data){
+  const next = data && data.next ? data.next : null;
+  const past = data && Array.isArray(data.past) ? data.past : [];
+
+  const nextEl = document.getElementById("meetNext");
+  if(next){
+    const agendaLines = (next.agenda||"").split("\n").filter(Boolean);
+    const agendaHtml = agendaLines.length
+      ? `<ul class="meet-agenda">${agendaLines.map(l=>`<li>${l}</li>`).join("")}</ul>`
+      : "";
+    nextEl.innerHTML = `
+      <span class="eyebrow">Pozvánka</span>
+      <div class="hairline"></div>
+      <h3>Členská schôdza odborovej organizácie</h3>
+      <div class="meet-info">
+        <div><b>${next.date}</b><span>Dátum</span></div>
+        <div><b>${next.time}</b><span>Čas</span></div>
+        <div><b>${next.place}</b><span>Miesto</span></div>
+      </div>
+      ${agendaHtml}
+      <a href="#podnety" class="btn" style="background:var(--yellow);color:var(--navy);box-shadow:0 6px 18px rgba(245,202,111,.4)">Napíšte nám pred schôdzou</a>`;
+  } else {
+    nextEl.innerHTML = `<p style="opacity:.6;font-size:.9rem;padding:20px 0">Najbližšia schôdza bude zverejnená čoskoro.</p>`;
+  }
+
+  const pastEl = document.getElementById("meetPast");
+  if(past.length){
+    const items = past.map(p => {
+      const link = p.minutesUrl && p.minutesUrl !== "#"
+        ? `<a href="${p.minutesUrl}" target="_blank" rel="noopener">${p.title}</a>`
+        : `<span>${p.title}</span>`;
+      return `<li>${link}<span>${p.date}</span></li>`;
+    }).join("");
+    pastEl.innerHTML = `<h3>Archív zápisníc</h3><ul>${items}</ul>`;
+  } else {
+    pastEl.innerHTML = `<h3>Archív zápisníc</h3><p style="opacity:.6;font-size:.9rem;padding:10px 0">Zápisnice budú zverejnené po schôdzi.</p>`;
+  }
+}
+
 /* ---------- Výbor ---------- */
 function renderBoard(list){
-  document.getElementById("boardGrid").innerHTML = (list || []).filter(m => m && m.name).map(m => `
+  const grid = document.getElementById("boardGrid");
+  const members = (list || []).filter(m => m && m.name);
+  if(!members.length){
+    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Kontakty na výbor sa načítavajú…</p>`;
+    return;
+  }
+  grid.innerHTML = members.map(m => {
+    const initials = m.name.split(" ").map(w=>w[0]).slice(0,2).join("");
+    const tel = m.phone ? `<a href="tel:${m.phone.replace(/[\s()-]/g,'')}">${m.phone}</a>` : "";
+    const mail = m.email ? `<a href="mailto:${m.email}">${m.email}</a>` : "";
+    return `
     <div class="board-card reveal in">
-      <div class="avatar">${m.name.split(" ").map(w=>w[0]).slice(0,2).join("")}</div>
-      <div class="board-line"></div>
+      <div class="avatar" aria-hidden="true">${initials}</div>
+      <div class="board-line" aria-hidden="true"></div>
       <div>
         <h3>${m.name}</h3>
         <div class="board-role">${m.role}</div>
-        <div class="board-contact">${m.phone}<br><a href="mailto:${m.email}">${m.email}</a></div>
+        <div class="board-contact">${tel}${tel&&mail?"<br>":""}${mail}</div>
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 }
 
 /* ---------- Formulár podnetov ---------- */
@@ -637,11 +714,12 @@ document.getElementById("complaintForm").addEventListener("submit", async e=>{
     name: document.getElementById("cname").value,
     email: document.getElementById("cmail").value,
     category: document.getElementById("ccat").value,
-    message: document.getElementById("cmsg").value
+    message: document.getElementById("cmsg").value,
+    website: document.getElementById("chpot").value  // honeypot
   };
   if(API_BASE){
-    try{ await fetch(API_BASE,{method:"POST",body:JSON.stringify(payload)}); }
-    catch(err){ console.warn("POST zlyhal", err); }
+    try{ await fetch(API_BASE,{method:"POST",body:JSON.stringify(payload),credentials:"omit"}); }
+    catch(err){ console.warn("[KOVO] POST zlyhal", err); }
   }
   document.getElementById("formOk").style.display = "block";
   e.target.querySelector("button[type=submit]").disabled = true;
@@ -665,6 +743,7 @@ document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 /* ---------- Init ---------- */
 (async function init(){
   renderMembers();
+  renderMeetings(await api("meetings") || DEMO.meetings);
   newsData = (await api("news")) || []; renderNews();
   docsData = (await api("docs")) || []; renderDocs();
   renderBoard((await api("board")) || []);
