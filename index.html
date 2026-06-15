@@ -23,7 +23,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Poppins',sans-serif;background:linear-gradient(180deg,#B6D9EC 0%,var(--pastel) 40%,#A6CFE7 100%);color:var(--soft);line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(-45deg,#B6D9EC,#AFD5EA,#C5E3F0,#9ECBE6);background-size:400% 400%;animation:gradientShift 20s ease infinite;color:var(--soft);line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 /* Preskočiť na obsah — prístupnosť */
 .skip-link{position:absolute;top:-100%;left:16px;background:var(--navy);color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;font-size:.84rem;font-weight:600;z-index:200;text-decoration:none;transition:top .15s}
 .skip-link:focus{top:0}
@@ -51,8 +51,10 @@ nav{position:sticky;top:0;z-index:50;background:rgba(175,213,234,.82);backdrop-f
 .nav-links{display:flex;gap:26px;margin-left:auto;align-items:center}
 .nav-links a{font-size:.85rem;font-weight:500;color:var(--soft);transition:color .2s}
 .nav-links a:hover{color:var(--navy)}
-.btn{display:inline-block;background:var(--brand);color:#fff;font-weight:600;font-size:.85rem;padding:11px 24px;border-radius:999px;border:none;cursor:pointer;transition:transform .15s,box-shadow .2s,background .2s;box-shadow:0 6px 18px rgba(65,129,166,.35)}
-.btn:hover{transform:translateY(-2px);background:#37708F}
+.btn{display:inline-block;position:relative;overflow:hidden;background:var(--brand);color:#fff;font-weight:600;font-size:.85rem;padding:11px 24px;border-radius:999px;border:none;cursor:pointer;transition:transform .2s cubic-bezier(.23,1,.32,1),box-shadow .2s,background .2s;box-shadow:0 6px 18px rgba(65,129,166,.35)}
+.btn::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,.3) 0%,transparent 65%);transform:scale(0);opacity:0;transition:transform .45s cubic-bezier(.23,1,.32,1),opacity .45s;border-radius:inherit}
+.btn:active::before{transform:scale(2.2);opacity:1;transition:none}
+.btn:hover{transform:translateY(-2px);background:#37708F;box-shadow:0 8px 24px rgba(65,129,166,.45)}
 .btn.ghost{background:transparent;color:var(--navy);box-shadow:none;border:1.5px solid var(--brand)}
 .btn.ghost:hover{background:rgba(65,129,166,.1)}
 .burger{display:none;margin-left:auto;background:none;border:none;font-size:1.6rem;color:var(--navy);cursor:pointer}
@@ -67,6 +69,7 @@ nav{position:sticky;top:0;z-index:50;background:rgba(175,213,234,.82);backdrop-f
 .hero-visual{text-align:center;position:relative}
 .hero-visual img{width:min(330px,70%);filter:drop-shadow(0 24px 40px rgba(27,57,91,.25));animation:float 7s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
 /* ===== Stat band (počet členov) ===== */
 .statband{margin:10px 0 0;background:var(--card);box-shadow:0 10px 40px rgba(27,57,91,.12);}
@@ -93,8 +96,8 @@ section{padding:78px 0}
 .chip:hover{border-color:var(--brand);color:var(--navy)}
 .chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
 .news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.news-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;display:flex;flex-direction:column;gap:12px;transition:transform .2s,box-shadow .2s;opacity:1}
-.news-card:hover{transform:translateY(-5px);box-shadow:0 16px 38px rgba(27,57,91,.16)}
+.news-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;display:flex;flex-direction:column;gap:12px;transition:transform .3s cubic-bezier(.23,1,.32,1),box-shadow .3s;will-change:transform}
+.news-card:hover{transform:translateY(-8px) scale(1.012);box-shadow:0 22px 52px rgba(27,57,91,.2)}
 .news-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .tag{font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);background:rgba(65,129,166,.12);padding:5px 12px;border-radius:999px}
 .tag.platne{color:#2C6E49;background:rgba(44,110,73,.12)}
@@ -111,8 +114,8 @@ section{padding:78px 0}
 /* ===== Dokumenty ===== */
 .doc-tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:36px}
 .doc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-.doc-row{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:20px 24px;display:flex;align-items:center;gap:18px;transition:transform .2s}
-.doc-row:hover{transform:translateX(4px)}
+.doc-row{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:20px 24px;display:flex;align-items:center;gap:18px;transition:transform .22s cubic-bezier(.23,1,.32,1),box-shadow .22s}
+.doc-row:hover{transform:translateX(7px);box-shadow:0 8px 28px rgba(27,57,91,.16)}
 .doc-ico{width:46px;height:46px;border-radius:12px;background:rgba(65,129,166,.12);display:grid;place-items:center;color:var(--brand);font-weight:700;font-size:.7rem;letter-spacing:.05em;flex-shrink:0}
 .doc-ico.pdf{background:rgba(245,202,111,.3);color:var(--brown)}
 .doc-info{flex:1;min-width:0}
@@ -194,14 +197,15 @@ footer a{color:#CFE4F2}
 .foot-bottom{border-top:1px solid rgba(175,213,234,.2);margin-top:40px;padding-top:22px;font-size:.74rem;text-align:center;font-weight:300}
 
 /* ===== Reveal ===== */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.23,1,.32,1),transform .65s cubic-bezier(.23,1,.32,1)}
 .reveal.in{opacity:1;transform:none}
 
 /* ===== Tablet (≤980px) ===== */
 @media(max-width:980px){
-  .hero-grid{grid-template-columns:1fr;gap:32px}
+  section{padding:60px 0}
+  .hero-grid{grid-template-columns:1fr;gap:28px}
   .hero-visual{order:-1}
-  .hero-visual img{width:180px}
+  .hero-visual img{width:min(240px,52%)}
   /* Hero text a eyebrow-group centrované v stĺpcovom rozložení */
   .hero-copy{text-align:center}
   .hero-copy .eyebrow-group{margin:0 auto}
@@ -210,6 +214,7 @@ footer a{color:#CFE4F2}
   .meet-grid,.form-grid,.doc-grid{grid-template-columns:1fr}
   .form-card,.join-side{padding:30px 32px}
   .meet-hero{padding:32px 36px}
+  .stat-card{padding:36px 32px}
 }
 
 /* ===== Mobile (≤680px) ===== */
@@ -244,6 +249,11 @@ footer a{color:#CFE4F2}
     scrollbar-width:none;-ms-overflow-style:none}
   .chips::-webkit-scrollbar,.doc-tabs::-webkit-scrollbar{display:none}
   .chip{flex-shrink:0}
+  .hero-visual img{width:min(200px,48%)}
+  .hero{padding:40px 0 28px}
+  .doc-info b{white-space:normal}
+  .board-card{align-items:center}
+  .board-line{align-self:stretch}
 }
 
 /* ===== Malý mobil (≤380px) ===== */
@@ -254,9 +264,110 @@ footer a{color:#CFE4F2}
   .stat-num{font-size:2.6rem}
   .nav-brand{font-size:.82rem}
 }
+
+/* ===== 2026 — Animácie, micro-interactions, vizuálne vylepšenia ===== */
+
+/* Stagger entrance pre dynamické karty */
+@keyframes cardIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.news-card{animation:cardIn .5s cubic-bezier(.23,1,.32,1) both}
+.news-card:nth-child(1){animation-delay:.0s}.news-card:nth-child(2){animation-delay:.08s}
+.news-card:nth-child(3){animation-delay:.15s}.news-card:nth-child(4){animation-delay:.04s}
+.news-card:nth-child(5){animation-delay:.11s}.news-card:nth-child(6){animation-delay:.18s}
+.doc-row{animation:cardIn .42s cubic-bezier(.23,1,.32,1) both}
+.doc-row:nth-child(1){animation-delay:.0s}.doc-row:nth-child(2){animation-delay:.07s}
+.doc-row:nth-child(3){animation-delay:.13s}.doc-row:nth-child(4){animation-delay:.19s}
+.doc-row:nth-child(5){animation-delay:.06s}.doc-row:nth-child(6){animation-delay:.12s}
+.doc-row:nth-child(7){animation-delay:.18s}.doc-row:nth-child(8){animation-delay:.24s}
+.board-card{animation:cardIn .5s cubic-bezier(.23,1,.32,1) both;will-change:transform}
+.board-card:nth-child(1){animation-delay:.0s}.board-card:nth-child(2){animation-delay:.08s}
+.board-card:nth-child(3){animation-delay:.15s}.board-card:nth-child(4){animation-delay:.05s}
+.board-card:nth-child(5){animation-delay:.12s}.board-card:nth-child(6){animation-delay:.19s}
+
+/* Scroll progress bar */
+#scrollProgress{position:fixed;top:0;left:0;height:3px;width:0%;
+  background:linear-gradient(90deg,var(--brand),var(--pastel-deep) 50%,var(--brand));
+  background-size:200% 100%;animation:prgShimmer 2s linear infinite;
+  z-index:201;border-radius:0 2px 2px 0;pointer-events:none}
+@keyframes prgShimmer{from{background-position:0%}to{background-position:200%}}
+
+/* Scroll-to-top tlačidlo */
+#backToTop{position:fixed;bottom:28px;right:28px;width:48px;height:48px;
+  border-radius:50%;background:var(--navy);color:var(--pastel);
+  border:none;font-size:1.5rem;cursor:pointer;line-height:1;
+  box-shadow:0 4px 20px rgba(27,57,91,.4);
+  opacity:0;transform:translateY(14px) scale(.9);
+  transition:opacity .3s,transform .3s cubic-bezier(.23,1,.32,1),background .2s,box-shadow .2s;
+  z-index:100;display:grid;place-items:center}
+#backToTop.visible{opacity:1;transform:translateY(0) scale(1)}
+#backToTop:hover{background:var(--brand);transform:translateY(-3px) scale(1.08)!important;
+  box-shadow:0 8px 28px rgba(65,129,166,.5)}
+@media(max-width:680px){#backToTop{bottom:18px;right:14px;width:42px;height:42px;font-size:1.25rem}}
+
+/* Nav scroll tieň */
+nav.scrolled{background:rgba(175,213,234,.97);box-shadow:0 4px 28px rgba(27,57,91,.14)}
+
+/* Glassmorphism stat band */
+.statband{background:rgba(253,254,255,.9)!important;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+
+/* Board card 3D tilt */
+.board-card{transition:transform .25s cubic-bezier(.23,1,.32,1),box-shadow .25s}
+.board-card:hover{box-shadow:0 22px 52px rgba(27,57,91,.22)}
+.board-card:hover .avatar{transform:scale(1.1)}
+.avatar{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+
+/* Chip scale pri aktívnom */
+.chip{transition:all .22s cubic-bezier(.23,1,.32,1)}
+.chip.active{transform:scale(1.05)}
+
+/* Form focus glow */
+.field input:focus,.field select:focus,.field textarea:focus{
+  box-shadow:0 0 0 3px rgba(65,129,166,.18),0 2px 8px rgba(27,57,91,.07)}
+
+/* Hairline draw-in animácia */
+@keyframes drawLine{from{transform:scaleX(0);transform-origin:left center}to{transform:scaleX(1);transform-origin:left center}}
+@keyframes dotPop{from{transform:translateX(-50%) scale(0)}to{transform:translateX(-50%) scale(1)}}
+.hairline.drawn::before{animation:drawLine .7s .05s cubic-bezier(.23,1,.32,1) both}
+.hairline.drawn::after{animation:dotPop .4s .62s cubic-bezier(.34,1.56,.64,1) both}
+
+/* Join-side list stagger (spustí sa keď reveal dostane .in) */
+.join-side li{opacity:0;transform:translateX(-12px);
+  transition:opacity .4s cubic-bezier(.23,1,.32,1),transform .4s cubic-bezier(.23,1,.32,1)}
+.join-side.in li:nth-child(1){transition-delay:.1s;opacity:1;transform:none}
+.join-side.in li:nth-child(2){transition-delay:.2s;opacity:1;transform:none}
+.join-side.in li:nth-child(3){transition-delay:.3s;opacity:1;transform:none}
+.join-side.in li:nth-child(4){transition-delay:.4s;opacity:1;transform:none}
+.join-side.in li:nth-child(5){transition-delay:.5s;opacity:1;transform:none}
+.join-side.in li:nth-child(6){transition-delay:.6s;opacity:1;transform:none}
+
+/* Gradient text na stat čísle */
+.stat-num{background:linear-gradient(135deg,var(--navy) 25%,var(--brand) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* Section subtílne striedanie pozadia */
+#dokumenty,#vybor{background:rgba(255,255,255,.2)}
+#schodze,#podnety{background:rgba(27,57,91,.04)}
+
+/* Vstup hlavného obsahu */
+main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Nav link hover underline */
+.nav-links a{position:relative}
+.nav-links a::after{content:"";position:absolute;bottom:-3px;left:0;right:0;height:2px;
+  background:var(--brand);border-radius:1px;
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .22s cubic-bezier(.23,1,.32,1)}
+.nav-links a:hover::after{transform:scaleX(1)}
+
+/* Btn stlačenie */
+.btn:active{transform:translateY(1px) scale(.97)!important;transition-duration:.04s!important}
+
+/* Eyebrow-group v sec-head vždy centrovaný */
+.sec-head .eyebrow-group{display:table;margin:0 auto}
 </style>
 </head>
 <body>
+<div id="scrollProgress" role="progressbar" aria-hidden="true"></div>
 <a href="#main-content" class="skip-link">Preskočiť na obsah</a>
 
 <!-- ============ NAV ============ -->
@@ -600,139 +711,197 @@ function renderNews(cat="all"){
     <article class="news-card">
       <div class="news-top">
         <span class="tag ${n.status==="platne"?"platne":"navrh"}">${n.status==="platne"?"Platí":"Navrhované"}</span>
-        <span class="news-date">${n.date}</span>
+        <span class="news-date">${n.date||""}</span>
       </div>
-      <h3>${n.title}</h3>
-      <p>${n.text}</p>
-      <div class="news-src"><span class="dot"></span>${n.src}<a href="${n.url}"${n.url&&n.url!=="+"?" target=\"_blank\" rel=\"noopener\" aria-label=\"Zdroj: "+n.src+"\"":""}>Zdroj →</a></div>
+      <h3 class="news-title">${n.title||"(bez názvu)"}</h3>
+      <p class="news-body">${n.body||""}</p>
+      ${n.link ? `<a class="news-link" href="${n.link}" target="_blank" rel="noopener">Viac info ↗</a>` : ""}
     </article>`).join("");
 }
-document.getElementById("newsChips").addEventListener("click", e=>{
-  const b = e.target.closest(".chip"); if(!b) return;
-  document.querySelectorAll("#newsChips .chip").forEach(c=>c.classList.remove("active"));
-  b.classList.add("active"); renderNews(b.dataset.cat);
+
+document.querySelectorAll(".chip[data-cat]").forEach(chip=>{
+  chip.addEventListener("click",()=>{
+    document.querySelectorAll(".chip[data-cat]").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    renderNews(chip.dataset.cat);
+  });
 });
 
 /* ---------- Dokumenty ---------- */
 let docsData = [];
-function renderDocs(cat="all"){
-  const grid = document.getElementById("docGrid");
-  const items = docsData.filter(d => d && (cat==="all" || d.cat===cat));
+function renderDocs(tab="zmluvy"){
+  const list = document.getElementById("docList");
+  const items = docsData.filter(d => d && d.tab===tab);
   if(!items.length){
-    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Dokumenty sa načítavajú alebo žiadne nie sú k dispozícii.</p>`;
+    list.innerHTML = `<p style="padding:32px 0;text-align:center;opacity:.6;font-size:.9rem">Momentálne žiadne dokumenty v tejto kategórii.</p>`;
     return;
   }
-  grid.innerHTML = items.map(d => `
-    <a class="doc-row" href="${d.url}"${d.url&&d.url!="#"?" target=\"_blank\" rel=\"noopener\"":" aria-disabled=\"true\""}>
-      <div class="doc-ico ${d.type==="PDF"?"pdf":""}">${d.type}</div>
-      <div class="doc-info"><b>${d.name}</b><span>${d.desc}</span></div>
-      <div class="doc-dl" aria-hidden="true">↓</div>
-    </a>`).join("");
+  list.innerHTML = items.map(d=>`
+    <div class="doc-row reveal">
+      <div class="doc-icon">📄</div>
+      <div class="doc-info">
+        <b>${d.name||"Dokument"}</b>
+        <span>${d.date||""} · ${d.size||""}</span>
+      </div>
+      ${d.url ? `<a class="btn btn-sm" href="${d.url}" target="_blank" rel="noopener" aria-label="Stiahnuť ${d.name||'dokument'}">Stiahnuť</a>` : ""}
+    </div>`).join("");
+  document.querySelectorAll("#dokumenty .reveal").forEach(el=>io.observe(el));
 }
-document.getElementById("docTabs").addEventListener("click", e=>{
-  const b = e.target.closest(".chip"); if(!b) return;
-  document.querySelectorAll("#docTabs .chip").forEach(c=>c.classList.remove("active"));
-  b.classList.add("active"); renderDocs(b.dataset.doc);
+
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    renderDocs(btn.dataset.tab);
+  });
 });
 
 /* ---------- Schôdze ---------- */
 function renderMeetings(data){
-  const next = data && data.next ? data.next : null;
-  const past = data && Array.isArray(data.past) ? data.past : [];
-
   const nextEl = document.getElementById("meetNext");
-  if(next){
-    const agendaLines = (next.agenda||"").split("\n").filter(Boolean);
-    const agendaHtml = agendaLines.length
-      ? `<ul class="meet-agenda">${agendaLines.map(l=>`<li>${l}</li>`).join("")}</ul>`
-      : "";
-    nextEl.innerHTML = `
-      <span class="eyebrow">Pozvánka</span>
-      <div class="hairline"></div>
-      <h3>Členská schôdza odborovej organizácie</h3>
-      <div class="meet-info">
-        <div><b>${next.date}</b><span>Dátum</span></div>
-        <div><b>${next.time}</b><span>Čas</span></div>
-        <div><b>${next.place}</b><span>Miesto</span></div>
-      </div>
-      ${agendaHtml}
-      <a href="#podnety" class="btn" style="background:var(--yellow);color:var(--navy);box-shadow:0 6px 18px rgba(245,202,111,.4)">Napíšte nám pred schôdzou</a>`;
-  } else {
-    nextEl.innerHTML = `<p style="opacity:.6;font-size:.9rem;padding:20px 0">Najbližšia schôdza bude zverejnená čoskoro.</p>`;
+  const pastEl = document.getElementById("meetPast");
+  if(!nextEl || !pastEl) return;
+
+  const now = new Date();
+  const upcoming = (data||[]).filter(m=>{
+    if(!m || !m.date) return false;
+    return new Date(m.date) >= now;
+  }).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const past = (data||[]).filter(m=>{
+    if(!m || !m.date) return false;
+    return new Date(m.date) < now;
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  function fmtDate(iso){
+    if(!iso) return "";
+    const d = new Date(iso);
+    return d.toLocaleDateString("sk-SK",{day:"numeric",month:"long",year:"numeric"});
   }
 
-  const pastEl = document.getElementById("meetPast");
-  if(past.length){
-    const items = past.map(p => {
-      const link = p.minutesUrl && p.minutesUrl !== "#"
-        ? `<a href="${p.minutesUrl}" target="_blank" rel="noopener">${p.title}</a>`
-        : `<span>${p.title}</span>`;
-      return `<li>${link}<span>${p.date}</span></li>`;
-    }).join("");
-    pastEl.innerHTML = `<h3>Archív zápisníc</h3><ul>${items}</ul>`;
+  if(!upcoming.length){
+    nextEl.innerHTML = `<p style="opacity:.6;font-size:.9rem">Momentálne nie sú naplánované žiadne schôdze.</p>`;
   } else {
-    pastEl.innerHTML = `<h3>Archív zápisníc</h3><p style="opacity:.6;font-size:.9rem;padding:10px 0">Zápisnice budú zverejnené po schôdzi.</p>`;
+    const m = upcoming[0];
+    nextEl.innerHTML = `
+      <div class="meet-card next-meet reveal">
+        <div class="meet-badge">Najbližšia schôdza</div>
+        <h3 class="meet-title">${m.title||"Schôdza ZO OZ KOVO"}</h3>
+        <div class="meet-meta">
+          <span>📅 ${fmtDate(m.date)}${m.time?" · 🕐 "+m.time:""}</span>
+          ${m.place?`<span>📍 ${m.place}</span>`:""}
+        </div>
+        ${m.agenda&&m.agenda.length?`<ul class="meet-agenda">${m.agenda.map(a=>`<li>${a}</li>`).join("")}</ul>`:""}
+        ${m.note?`<p class="meet-note">${m.note}</p>`:""}
+      </div>
+      ${upcoming.slice(1).map(u=>`
+      <div class="meet-card reveal">
+        <h3 class="meet-title">${u.title||"Schôdza ZO OZ KOVO"}</h3>
+        <div class="meet-meta"><span>📅 ${fmtDate(u.date)}${u.time?" · 🕐 "+u.time:""}</span>${u.place?`<span>📍 ${u.place}</span>`:""}</div>
+      </div>`).join("")}`;
   }
+
+  if(!past.length){
+    pastEl.innerHTML = `<p style="opacity:.6;font-size:.9rem">Zatiaľ žiadne záznamy z minulých schôdzí.</p>`;
+  } else {
+    pastEl.innerHTML = `<div class="past-meets-list">${past.map(m=>`
+      <div class="past-meet-row reveal">
+        <span class="past-meet-date">${fmtDate(m.date)}</span>
+        <span class="past-meet-title">${m.title||"Schôdza ZO OZ KOVO"}</span>
+        ${m.minutes?`<a class="btn btn-sm" href="${m.minutes}" target="_blank" rel="noopener">Zápisnica</a>`:""}
+      </div>`).join("")}</div>`;
+  }
+
+  document.querySelectorAll("#schodze .reveal").forEach(el=>io.observe(el));
 }
 
 /* ---------- Výbor ---------- */
-function renderBoard(list){
+function renderBoard(data){
   const grid = document.getElementById("boardGrid");
-  const members = (list || []).filter(m => m && m.name);
-  if(!members.length){
-    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Kontakty na výbor sa načítavajú…</p>`;
+  if(!grid) return;
+  if(!data||!data.length){
+    grid.innerHTML = `<p style="text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Informácie o výbore sa načítavajú…</p>`;
     return;
   }
-  grid.innerHTML = members.map(m => {
-    const initials = m.name.split(" ").map(w=>w[0]).slice(0,2).join("");
-    const tel = m.phone ? `<a href="tel:${m.phone.replace(/[\s()-]/g,'')}">${m.phone}</a>` : "";
-    const mail = m.email ? `<a href="mailto:${m.email}">${m.email}</a>` : "";
-    return `
-    <div class="board-card reveal in">
-      <div class="avatar" aria-hidden="true">${initials}</div>
-      <div class="board-line" aria-hidden="true"></div>
-      <div>
-        <h3>${m.name}</h3>
-        <div class="board-role">${m.role}</div>
-        <div class="board-contact">${tel}${tel&&mail?"<br>":""}${mail}</div>
+  grid.innerHTML = data.map(m=>`
+    <div class="board-card reveal" role="article">
+      <div class="avatar" aria-hidden="true">${(m.name||"?")[0].toUpperCase()}</div>
+      <div class="board-info">
+        <strong>${m.name||""}</strong>
+        <span class="board-role">${m.role||""}</span>
+        ${m.tel?`<a class="board-tel" href="tel:${m.tel.replace(/\s/g,"")}" aria-label="Zavolať ${m.name||""}">${m.tel}</a>`:""}
       </div>
-    </div>`;
-  }).join("");
+      <div class="board-line" aria-hidden="true"></div>
+    </div>`).join("");
+  document.querySelectorAll("#vybor .reveal").forEach(el=>io.observe(el));
 }
 
-/* ---------- Formulár podnetov ---------- */
-document.getElementById("anonToggle").addEventListener("change", e=>{
-  const hide = e.target.checked;
-  document.getElementById("nameField").style.display = hide ? "none" : "";
-  document.getElementById("mailField").style.display = hide ? "none" : "";
-});
-document.getElementById("complaintForm").addEventListener("submit", async e=>{
-  e.preventDefault();
-  const payload = {
-    action:"complaint",
-    anonymous: document.getElementById("anonToggle").checked,
-    name: document.getElementById("cname").value,
-    email: document.getElementById("cmail").value,
-    category: document.getElementById("ccat").value,
-    message: document.getElementById("cmsg").value,
-    website: document.getElementById("chpot").value  // honeypot
-  };
-  if(API_BASE){
-    try{ await fetch(API_BASE,{method:"POST",body:JSON.stringify(payload),credentials:"omit"}); }
-    catch(err){ console.warn("[KOVO] POST zlyhal", err); }
-  }
-  document.getElementById("formOk").style.display = "block";
-  e.target.querySelector("button[type=submit]").disabled = true;
-});
+/* ---------- Podnet / sťažnosť ---------- */
+(function(){
+  const form = document.getElementById("complaintForm");
+  if(!form) return;
+  const anonToggle = document.getElementById("anonToggle");
+  const nameField  = document.getElementById("nameFieldWrap");
 
-/* ---------- Mobile menu ---------- */
-document.getElementById("burger").addEventListener("click", ()=>{
-  const open = document.getElementById("navLinks").classList.toggle("open");
-  document.getElementById("burger").setAttribute("aria-expanded", open);
-});
-document.querySelectorAll("#navLinks a").forEach(a=>a.addEventListener("click",()=>{
-  document.getElementById("navLinks").classList.remove("open");
-}));
+  if(anonToggle && nameField){
+    anonToggle.addEventListener("change",()=>{
+      nameField.style.display = anonToggle.checked ? "none" : "";
+    });
+  }
+
+  form.addEventListener("submit", async e=>{
+    e.preventDefault();
+    const honey = form.querySelector("#chpot");
+    if(honey && honey.value){ return; }
+
+    const btn = form.querySelector("button[type=submit]");
+    const orig = btn ? btn.textContent : "";
+    if(btn){ btn.disabled = true; btn.textContent = "Odosielam…"; }
+
+    const payload = {
+      action   : "complaint",
+      subject  : form.querySelector('[name=subject]')?.value  || "",
+      body     : form.querySelector('[name=body]')?.value     || "",
+      senderName: (anonToggle && anonToggle.checked) ? "Anonymný člen" : (form.querySelector('[name=senderName]')?.value || ""),
+      anonymous: !!(anonToggle && anonToggle.checked)
+    };
+
+    try{
+      const r = await fetch(API_BASE + "?action=complaint", {
+        method : "POST",
+        credentials: "omit",
+        mode   : "cors",
+        headers: {"Content-Type":"application/json"},
+        body   : JSON.stringify(payload)
+      });
+      const res = await r.json();
+      if(res.ok || res.status==="ok"){
+        form.innerHTML = `<p style="text-align:center;padding:32px 0;font-size:1rem;color:var(--navy)">✅ Podnet bol odoslaný. Ďakujeme!</p>`;
+      } else {
+        throw new Error(res.message||"Chyba servera");
+      }
+    }catch(err){
+      if(btn){ btn.disabled = false; btn.textContent = orig; }
+      alert("Nepodarilo sa odoslať podnet. Skúste to prosím neskôr.\n\n"+err.message);
+    }
+  });
+})();
+
+/* ---------- Mobilný burger ---------- */
+(function(){
+  const burger = document.getElementById("burger");
+  const nav    = document.querySelector(".nav-links");
+  if(!burger || !nav) return;
+  burger.addEventListener("click",()=>{
+    const open = nav.classList.toggle("open");
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  nav.querySelectorAll("a").forEach(a=>{
+    a.addEventListener("click",()=>{
+      nav.classList.remove("open");
+      burger.setAttribute("aria-expanded","false");
+    });
+  });
+})();
 
 /* ---------- Scroll reveal ---------- */
 const io = new IntersectionObserver(es=>es.forEach(e=>{
@@ -740,14 +909,65 @@ const io = new IntersectionObserver(es=>es.forEach(e=>{
 }),{threshold:.12});
 document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 
-/* ---------- Init ---------- */
-(async function init(){
-  renderMembers();
-  renderMeetings(await api("meetings") || DEMO.meetings);
-  newsData = (await api("news")) || []; renderNews();
-  docsData = (await api("docs")) || []; renderDocs();
-  renderBoard((await api("board")) || []);
+/* ===== 2026 — Scroll progress, nav shadow, back-to-top ===== */
+(function(){
+  const prog = document.getElementById("scrollProgress");
+  const navEl  = document.querySelector("nav");
+  const btn  = document.getElementById("backToTop");
+  function onScroll(){
+    const max = document.body.scrollHeight - window.innerHeight;
+    if(prog) prog.style.width = (max > 0 ? Math.min(window.scrollY / max * 100, 100) : 0) + "%";
+    if(navEl)  navEl.classList.toggle("scrolled", window.scrollY > 40);
+    if(btn)  btn.classList.toggle("visible",  window.scrollY > 500);
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  if(btn) btn.addEventListener("click", ()=> window.scrollTo({top:0, behavior:"smooth"}));
+  onScroll();
 })();
+
+/* ===== 3D Tilt na board kartách ===== */
+(function(){
+  function initTilt(){
+    document.querySelectorAll(".board-card").forEach(card=>{
+      if(card._t) return; card._t = true;
+      card.addEventListener("mousemove", e=>{
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left  - r.width/2)  / r.width;
+        const y = (e.clientY - r.top   - r.height/2) / r.height;
+        card.style.transform = `perspective(700px) rotateY(${x*6}deg) rotateX(${-y*4}deg) translateY(-4px)`;
+      });
+      card.addEventListener("mouseleave", ()=>{ card.style.transform = ""; });
+    });
+  }
+  const bg = document.getElementById("boardGrid");
+  if(bg) new MutationObserver(initTilt).observe(bg, {childList:true});
+})();
+
+/* ===== Hairline draw-in animácia pri scrolle do view ===== */
+(function(){
+  const ho = new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add("drawn"); ho.unobserve(e.target); }
+  }), {threshold:.4});
+  document.querySelectorAll(".hairline").forEach(h=> ho.observe(h));
+})();
+
+/* ---------- Init ---------- */
+async function init(){
+  renderMembers();
+  const [meetData, newsRaw, docsRaw, boardRaw] = await Promise.all([
+    api("meetings"),
+    api("news"),
+    api("docs"),
+    api("board")
+  ]);
+  newsData = newsRaw || DEMO.news;
+  renderNews("all");
+  docsData = docsRaw || DEMO.docs;
+  renderDocs("zmluvy");
+  renderMeetings(meetData || DEMO.meetings);
+  renderBoard(boardRaw || DEMO.board);
+}
+init();
 </script>
 </body>
 </html>
