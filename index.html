@@ -827,8 +827,8 @@ function renderNews(cat="all"){
         <span class="news-date">${n.date||""}</span>
       </div>
       <h3 class="news-title">${n.title||"(bez názvu)"}</h3>
-      <p class="news-body">${n.body||""}</p>
-      ${n.link ? `<a class="news-link" href="${n.link}" target="_blank" rel="noopener">Viac info ↗</a>` : ""}
+      <p class="news-body">${n.text||""}</p>
+      ${n.url ? `<a class="news-link" href="${n.url}" target="_blank" rel="noopener">Viac info ↗</a>` : ""}
     </article>`).join("");
 }
 
@@ -842,30 +842,30 @@ document.querySelectorAll(".chip[data-cat]").forEach(chip=>{
 
 /* ---------- Dokumenty ---------- */
 let docsData = [];
-function renderDocs(tab="zmluvy"){
-  const list = document.getElementById("docList");
-  const items = docsData.filter(d => d && d.tab===tab);
+function renderDocs(tab="all"){
+  const list = document.getElementById("docGrid");
+  const items = docsData.filter(d => d && (tab==="all" || d.cat===tab));
   if(!items.length){
     list.innerHTML = `<p style="padding:32px 0;text-align:center;opacity:.6;font-size:.9rem">Momentálne žiadne dokumenty v tejto kategórii.</p>`;
     return;
   }
   list.innerHTML = items.map(d=>`
     <div class="doc-row reveal">
-      <div class="doc-icon">📄</div>
+      <div class="doc-ico">${d.type||"PDF"}</div>
       <div class="doc-info">
         <b>${d.name||"Dokument"}</b>
-        <span>${d.date||""} · ${d.size||""}</span>
+        <span>${d.desc||""}</span>
       </div>
       ${d.url ? `<a class="btn btn-sm" href="${d.url}" target="_blank" rel="noopener" aria-label="Stiahnuť ${d.name||'dokument'}">Stiahnuť</a>` : ""}
     </div>`).join("");
   document.querySelectorAll("#dokumenty .reveal").forEach(el=>io.observe(el));
 }
 
-document.querySelectorAll(".tab-btn").forEach(btn=>{
+document.querySelectorAll(".chip[data-doc]").forEach(btn=>{
   btn.addEventListener("click",()=>{
-    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".chip[data-doc]").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
-    renderDocs(btn.dataset.tab);
+    renderDocs(btn.dataset.doc);
   });
 });
 
@@ -920,7 +920,7 @@ function renderMeetings(data){
       <div class="past-meet-row reveal">
         <span class="past-meet-date">${fmtDate(m.date)}</span>
         <span class="past-meet-title">${m.title||"Schôdza ZO OZ KOVO"}</span>
-        ${m.minutes?`<a class="btn btn-sm" href="${m.minutes}" target="_blank" rel="noopener">Zápisnica</a>`:""}
+        ${m.minutesUrl?`<a class="btn btn-sm" href="${m.minutesUrl}" target="_blank" rel="noopener">Zápisnica</a>`:""}
       </div>`).join("")}</div>`;
   }
 
@@ -941,7 +941,7 @@ function renderBoard(data){
       <div class="board-info">
         <strong>${m.name||""}</strong>
         <span class="board-role">${m.role||""}</span>
-        ${m.tel?`<a class="board-tel" href="tel:${m.tel.replace(/\s/g,"")}" aria-label="Zavolať ${m.name||""}">${m.tel}</a>`:""}
+        ${m.phone?`<a class="board-tel" href="tel:${m.phone.replace(/\s/g,"")}" aria-label="Zavolať ${m.name||""}">${m.phone}</a>`:""}
       </div>
       <div class="board-line" aria-hidden="true"></div>
     </div>`).join("");
@@ -953,11 +953,14 @@ function renderBoard(data){
   const form = document.getElementById("complaintForm");
   if(!form) return;
   const anonToggle = document.getElementById("anonToggle");
-  const nameField  = document.getElementById("nameFieldWrap");
+  const nameField  = document.getElementById("nameField");
+  const mailField  = document.getElementById("mailField");
 
   if(anonToggle && nameField){
     anonToggle.addEventListener("change",()=>{
-      nameField.style.display = anonToggle.checked ? "none" : "";
+      const hidden = anonToggle.checked;
+      nameField.style.display = hidden ? "none" : "";
+      if(mailField) mailField.style.display = hidden ? "none" : "";
     });
   }
 
@@ -970,14 +973,18 @@ function renderBoard(data){
     const orig = btn ? btn.textContent : "";
     if(btn){ btn.disabled = true; btn.textContent = "Odosielam…"; }
 
+    const anon = !!(anonToggle && anonToggle.checked);
     const payload = {
       action   : "complaint",
-      subject  : form.querySelector('[name=subject]')?.value  || "",
-      body     : form.querySelector('[name=body]')?.value     || "",
-      senderName: (anonToggle && anonToggle.checked) ? "Anonymný člen" : (form.querySelector('[name=senderName]')?.value || ""),
-      anonymous: !!(anonToggle && anonToggle.checked)
+      name     : anon ? "" : (document.getElementById("cname")?.value?.trim() || ""),
+      email    : anon ? "" : (document.getElementById("cmail")?.value?.trim() || ""),
+      category : document.getElementById("ccat")?.value || "",
+      message  : document.getElementById("cmsg")?.value?.trim() || "",
+      anonymous: anon,
+      website  : form.querySelector("#chpot")?.value || ""
     };
 
+    if(!payload.message || payload.message.length < 10){ alert("Prosím opíšte podnet (min. 10 znakov)."); if(btn){ btn.disabled=false; btn.textContent=orig; } return; }
     try{
       const r = await fetch(API_BASE + "?action=complaint", {
         method : "POST",
@@ -1103,7 +1110,7 @@ async function init(){
   newsData = newsRaw || DEMO.news;
   renderNews("all");
   docsData = docsRaw || DEMO.docs;
-  renderDocs("zmluvy");
+  renderDocs("all");
   renderMeetings(meetData || DEMO.meetings);
   renderBoard(boardRaw || DEMO.board);
 }
