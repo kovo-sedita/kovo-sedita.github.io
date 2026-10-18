@@ -167,7 +167,9 @@ document.querySelectorAll(".chip[data-cat]").forEach(chip=>{
 
 /* ---------- Dokumenty ---------- */
 let docsData = [];
-function renderDocs(tab="all"){
+let docTab = "all";   // aktívna karta — prežije aj neskoršie načítanie dát z API
+function renderDocs(tab=docTab){
+  docTab = tab;
   const list = document.getElementById("docGrid");
   const items = docsData.filter(d => d && (tab==="all" || d.cat===tab));
   if(!items.length){
@@ -186,11 +188,26 @@ function renderDocs(tab="all"){
   document.querySelectorAll("#dokumenty .reveal").forEach(el=>io.observe(el));
 }
 
+function selectDocTab(tab){
+  document.querySelectorAll(".chip[data-doc]").forEach(b=>{
+    const on = b.dataset.doc === tab;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    // Na mobile je riadok kariet posuvný — aktívnu kartu posunúť do viditeľnej časti
+    if(on){ const row = b.parentElement; row.scrollLeft = b.offsetLeft - (row.clientWidth - b.offsetWidth)/2; }
+  });
+  renderDocs(tab);
+}
 document.querySelectorAll(".chip[data-doc]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".chip[data-doc]").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    renderDocs(btn.dataset.doc);
+  btn.addEventListener("click",()=>selectDocTab(btn.dataset.doc));
+});
+// Odkazy s data-doc-tab (napr. „Stiahnuť prihlášku“) prepnú kartu a nechajú prehliadač posunúť na #dokumenty
+let dataReady = false, scrollDocsWhenReady = false;
+document.querySelectorAll("[data-doc-tab]").forEach(a=>{
+  a.addEventListener("click",()=>{
+    selectDocTab(a.dataset.docTab);
+    // Kým sa dáta nenačítajú, obsah nad dokumentmi ešte narastie — po načítaní posunúť znova
+    if(!dataReady) scrollDocsWhenReady = true;
   });
 });
 
@@ -486,9 +503,11 @@ async function init(){
   newsData = list(newsRaw, DEMO.news);
   renderNews("all");
   docsData = list(docsRaw, DEMO.docs);
-  renderDocs("all");
+  renderDocs();
   renderMeetings(meetData && typeof meetData === "object" ? meetData : DEMO.meetings);
   renderBoard(list(boardRaw, DEMO.board));
+  dataReady = true;
+  if(scrollDocsWhenReady) document.getElementById("dokumenty").scrollIntoView({behavior:"smooth"});
 }
 init();
 
