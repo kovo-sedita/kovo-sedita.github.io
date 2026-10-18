@@ -19,6 +19,15 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://kovo-sedita.github.io/">
 <meta name="theme-color" content="#AFD5EA">
+<meta name="color-scheme" content="light dark">
+<!-- Téma nastaviť ešte pred vykreslením, aby stránka nezablikala svetlou -->
+<script>
+(function(){
+  var t; try{ t = localStorage.getItem("theme"); }catch(e){}
+  var dark = t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+})();
+</script>
 <!-- Údaje o organizácii pre vyhľadávače (schema.org) -->
 <script type="application/ld+json">
 {
@@ -144,14 +153,14 @@
   --soft:#3C5A78; --brand-light:#6EA0C3; --pastel-deep:#9ECBE6;
   --hairline:#5A82A5; --gold:#F3AD4D; --surface:#FFFFFF;
   --success:#2E8B57; --warning:#C8782B; --error:#C0392B;
-  --card:#FDFEFF; --radius:18px;
+  --card:#FDFEFF; --radius:18px; --ink:#1B395B;
   --shadow:0 10px 30px rgba(27,57,91,.10);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#B6D9EC 0%,#AFD5EA 35%,#C5E3F0 70%,#9ECBE6 100%);color:var(--soft);line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 /* Preskočiť na obsah — prístupnosť */
-.skip-link{position:absolute;top:-100%;left:16px;background:var(--navy);color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;font-size:.84rem;font-weight:600;z-index:200;text-decoration:none;transition:top .15s}
+.skip-link{position:absolute;top:-100%;left:16px;background:var(--ink);color:#fff;padding:10px 20px;border-radius:0 0 10px 10px;font-size:.84rem;font-weight:600;z-index:200;text-decoration:none;transition:top .15s}
 .skip-link:focus{top:0}
 h1,h2,h3,h4{color:var(--navy);line-height:1.18;font-weight:700}
 a{color:var(--brand);text-decoration:none}
@@ -173,10 +182,13 @@ nav{position:sticky;top:0;z-index:50;background:rgba(175,213,234,.82);backdrop-f
 .nav-logo{width:46px;height:46px;flex-shrink:0}
 .nav-brand{font-weight:700;color:var(--navy);font-size:.95rem;letter-spacing:.05em;white-space:nowrap}
 .nav-brand .sig{font-family:'Poppins',sans-serif;font-weight:700;color:var(--brand)}
-.nav-sep{width:3px;height:30px;background:var(--brand);border-radius:2px;margin:0 6px}
+.nav-sep{width:3px;height:30px;background:var(--brand);border-radius:2px;margin:0 6px;flex-shrink:0}
 .nav-links{display:flex;gap:26px;margin-left:auto;align-items:center}
 .nav-links a{font-size:.85rem;font-weight:500;color:var(--soft);transition:color .2s}
 .nav-links a:hover{color:var(--navy)}
+/* CTA v navigácii: biely text, inak ho prebije farba bežných odkazov */
+.nav-links a.btn,.nav-links a.btn:hover{color:#fff}
+.nav-links a.btn::after{display:none}
 .btn{display:inline-block;position:relative;overflow:hidden;background:var(--brand);color:#fff;font-weight:600;font-size:.85rem;padding:11px 24px;border-radius:999px;border:none;cursor:pointer;transition:transform .2s cubic-bezier(.23,1,.32,1),box-shadow .2s,background .2s;box-shadow:0 6px 18px rgba(65,129,166,.35)}
 .btn::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,.3) 0%,transparent 65%);transform:scale(0);opacity:0;transition:transform .45s cubic-bezier(.23,1,.32,1),opacity .45s;border-radius:inherit}
 .btn:active::before{transform:scale(2.2);opacity:1;transition:none}
@@ -230,7 +242,7 @@ section{padding:78px 0}
 .chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
 .chip{padding:9px 20px;border-radius:999px;border:1.5px solid var(--hairline);background:transparent;color:var(--soft);font-family:inherit;font-size:.82rem;font-weight:500;cursor:pointer;transition:all .2s}
 .chip:hover{border-color:var(--brand);color:var(--navy)}
-.chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
 .news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .news-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;display:flex;flex-direction:column;gap:12px;transition:transform .3s cubic-bezier(.23,1,.32,1),box-shadow .3s}
 .news-card:hover{transform:translateY(-8px) scale(1.012);box-shadow:0 22px 52px rgba(27,57,91,.2)}
@@ -261,7 +273,7 @@ section{padding:78px 0}
 
 /* ===== Schôdze ===== */
 .meet-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start}
-.meet-hero{background:var(--navy);color:#CFE4F2;border-radius:var(--radius);padding:40px 44px;box-shadow:var(--shadow)}
+.meet-hero{background:var(--ink);color:#CFE4F2;border-radius:var(--radius);padding:40px 44px;box-shadow:var(--shadow)}
 .meet-hero .eyebrow{color:var(--pastel)}
 .meet-hero .hairline::before{background:rgba(175,213,234,.5)}
 .meet-hero h3{color:#fff;font-size:1.7rem;margin-bottom:22px}
@@ -288,7 +300,7 @@ section{padding:78px 0}
 .board-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .board-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px;display:flex;gap:20px;align-items:flex-start}
 .board-line{width:3px;align-self:stretch;background:var(--brand);border-radius:2px;flex-shrink:0}
-.avatar{width:56px;height:56px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:600;font-size:1.05rem;flex-shrink:0}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:600;font-size:1.05rem;flex-shrink:0}
 .board-card h3{font-size:1rem;font-weight:600}
 .board-role{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--brand);font-weight:600;margin:2px 0 12px}
 .board-contact{font-size:.8rem;font-weight:300;line-height:1.8}
@@ -312,14 +324,14 @@ section{padding:78px 0}
 .switch input:checked + .slider{background:var(--brand)}
 .switch input:checked + .slider::before{transform:translateX(20px)}
 .form-ok{display:none;background:rgba(44,110,73,.1);border:1.5px solid rgba(44,110,73,.35);color:#2C6E49;border-radius:12px;padding:16px 20px;font-size:.88rem;font-weight:500;margin-top:6px}
-.join-side{background:linear-gradient(160deg,var(--navy),#27506F);border-radius:var(--radius);padding:38px 40px;color:#CFE4F2;box-shadow:var(--shadow)}
+.join-side{background:linear-gradient(160deg,var(--ink),#27506F);border-radius:var(--radius);padding:38px 40px;color:#CFE4F2;box-shadow:var(--shadow)}
 .join-side h3{color:#fff;font-size:1.25rem;margin-bottom:14px}
 .join-side ul{list-style:none;margin:18px 0 26px}
 .join-side li{padding:9px 0 9px 26px;position:relative;font-size:.88rem;font-weight:300}
 .join-side li::before{content:"";position:absolute;left:0;top:16px;width:9px;height:9px;border-radius:50%;background:var(--gold)}
 
 /* ===== Footer ===== */
-footer{background:var(--navy);color:#9FC3DC;padding:54px 0 30px;margin-top:40px}
+footer{background:var(--ink);color:#9FC3DC;padding:54px 0 30px;margin-top:40px}
 .foot-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:40px;align-items:start}
 .foot-brand{display:flex;align-items:center;gap:16px}
 .foot-brand img{width:54px}
@@ -429,7 +441,7 @@ footer a{color:#CFE4F2}
 
 /* Scroll-to-top tlačidlo */
 #backToTop{position:fixed;bottom:28px;right:28px;width:48px;height:48px;
-  border-radius:50%;background:var(--navy);color:var(--pastel);
+  border-radius:50%;background:var(--ink);color:var(--pastel);
   border:none;font-size:1.5rem;cursor:pointer;line-height:1;
   box-shadow:0 4px 20px rgba(27,57,91,.4);
   opacity:0;transform:translateY(14px) scale(.9);
@@ -524,7 +536,7 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
   100%{transform:scale(1)}
 }
 .chip.active{
-  background:var(--navy);border-color:var(--navy);color:#fff;
+  background:var(--ink);border-color:var(--ink);color:#fff;
   animation:chipSpring .4s cubic-bezier(.34,1.56,.64,1) both;
 }
 
@@ -635,6 +647,46 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
 .faq-empty{text-align:center;padding:24px 0;font-size:.9rem}
 .faq-note{max-width:860px;margin:22px auto 0;text-align:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:.95rem}
 @media(max-width:680px){.faq-item summary{padding:16px 18px;font-size:.9rem}.faq-a{padding:0 18px 18px}}
+/* ===== Tmavý režim =====
+   Téma sa nastavuje atribútom data-theme na <html> (skript v <head>):
+   uložená voľba používateľa, inak podľa systému. --navy je v tmavom
+   režime svetlý text, navy ako pozadie drží --ink. */
+.theme-toggle{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(90,130,165,.45);background:transparent;color:var(--navy);display:grid;place-items:center;cursor:pointer;flex-shrink:0;margin-left:14px;transition:background .2s,border-color .2s}
+.theme-toggle:hover{background:rgba(65,129,166,.12);border-color:var(--brand)}
+.theme-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-toggle .i-sun{display:none}
+[data-theme="dark"] .theme-toggle .i-sun{display:block}
+[data-theme="dark"] .theme-toggle .i-moon{display:none}
+@media(max-width:680px){.theme-toggle{margin-left:8px;width:38px;height:38px}}
+
+[data-theme="dark"]{
+  color-scheme:dark;
+  --navy:#E6F0F8; --soft:#B4CCE0; --brand:#7FB4D8; --brand-deep:#9CC6E3; --brand-light:#8FB8D6;
+  --hairline:#4F7698; --card:#15293F; --surface:#15293F;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+[data-theme="dark"] body{background:linear-gradient(135deg,#0D1B2C 0%,#10233A 50%,#0F2032 100%)}
+[data-theme="dark"] nav{background:rgba(13,27,44,.85);border-bottom-color:rgba(127,180,216,.15)}
+[data-theme="dark"] nav.scrolled{background:rgba(13,27,44,.97);box-shadow:0 4px 28px rgba(0,0,0,.4)}
+@media(max-width:680px){[data-theme="dark"] .nav-links{background:rgba(13,27,44,.98);border-bottom-color:rgba(127,180,216,.15)}}
+[data-theme="dark"] .btn{background:#2F6A8A;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+[data-theme="dark"] .btn:hover{background:#37708F}
+[data-theme="dark"] .btn.ghost{background:transparent;color:var(--navy);border-color:var(--brand)}
+[data-theme="dark"] .chip.active{background:#2F6A8A;border-color:#2F6A8A}
+[data-theme="dark"] .statband{background:rgba(21,41,63,.9)!important;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+[data-theme="dark"] .verified span{background:rgba(21,41,63,.7)}
+[data-theme="dark"] .field input,[data-theme="dark"] .field select,[data-theme="dark"] .field textarea,[data-theme="dark"] .faq-search input{background:#0F2236;border-color:rgba(127,180,216,.3)}
+[data-theme="dark"] ::placeholder{color:#7F9AB3}
+[data-theme="dark"] .tag.platne{color:#7FD3A0;background:rgba(46,139,87,.2)}
+[data-theme="dark"] .tag.navrh{color:#F3C77A;background:rgba(243,173,77,.18)}
+[data-theme="dark"] #dokumenty,[data-theme="dark"] #vybor{background:rgba(255,255,255,.02)}
+[data-theme="dark"] #schodze,[data-theme="dark"] #podnety,[data-theme="dark"] #moje-prava{background:rgba(0,0,0,.14)}
+[data-theme="dark"] .avatar{background:#2F6A8A}
+[data-theme="dark"] footer{background:#0A1625}
+[data-theme="dark"] .faq-item,[data-theme="dark"] .past-meet-row{box-shadow:0 4px 14px rgba(0,0,0,.25)}
+[data-theme="dark"] .ht-text{animation-name:htColorShiftDark}
+[data-theme="dark"] #memberChart circle[fill="#1B395B"]{fill:#E6F0F8}
+@keyframes htColorShiftDark{0%,100%{color:#E6F0F8}40%{color:#7FB4D8}70%{color:#9CC6E3}}
 </style>
 </head>
 <body>
@@ -657,6 +709,10 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
       <a href="#podnety">Podnety</a>
       <a href="#clenstvo" class="btn">Staň sa členom</a>
     </div>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Prepnúť na tmavý režim">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+    </button>
   </div>
 </nav>
 
@@ -879,7 +935,7 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
           <li>Podpora pri sporoch so zamestnávateľom</li>
           <li>Sociálna výpomoc a benefity pre členov</li>
         </ul>
-        <a href="#dokumenty" class="btn" style="background:var(--gold);color:var(--navy);box-shadow:0 6px 18px rgba(243,173,77,.3)">Stiahnuť prihlášku</a>
+        <a href="#dokumenty" class="btn" style="background:var(--gold);color:#1B395B;box-shadow:0 6px 18px rgba(243,173,77,.3)">Stiahnuť prihlášku</a>
         <p style="margin-top:18px;font-size:.78rem;font-weight:300">Vyplnenú prihlášku odovzdajte ktorémukoľvek členovi výboru.</p>
       </div>
     </div>
@@ -1270,6 +1326,33 @@ function renderBoard(data){
       if(btn){ btn.disabled = false; btn.textContent = orig; }
       alert("Nepodarilo sa odoslať podnet. Skúste to prosím neskôr.\n\n"+err.message);
     }
+  });
+})();
+
+/* ---------- Tmavý režim: prepínač ---------- */
+(function(){
+  const root = document.documentElement;
+  const btn = document.getElementById("themeToggle");
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const mq = matchMedia("(prefers-color-scheme: dark)");
+  function apply(theme){
+    root.setAttribute("data-theme", theme);
+    if(meta) meta.setAttribute("content", theme === "dark" ? "#0D1B2C" : "#AFD5EA");
+    if(btn){
+      btn.setAttribute("aria-label", theme === "dark" ? "Prepnúť na svetlý režim" : "Prepnúť na tmavý režim");
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+    }
+  }
+  apply(root.getAttribute("data-theme") || "light");
+  if(btn) btn.addEventListener("click", ()=>{
+    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    try{ localStorage.setItem("theme", next); }catch(e){}
+    apply(next);
+  });
+  // Kým si používateľ nevyberie sám, sledujeme nastavenie systému
+  mq.addEventListener("change", e=>{
+    let saved; try{ saved = localStorage.getItem("theme"); }catch(_){}
+    if(!saved) apply(e.matches ? "dark" : "light");
   });
 })();
 
