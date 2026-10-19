@@ -369,14 +369,18 @@ footer a{color:#CFE4F2}
   .stat-card{padding:36px 32px}
 }
 
-/* ===== Mobile (≤680px) ===== */
-@media(max-width:680px){
+/* ===== Menu pod tlačidlom ☰ do 1023 px — 6 odkazov + CTA + prepínač sa užšie nezmestia ===== */
+@media(max-width:1023px){
   .nav-links{display:none;position:absolute;top:72px;left:0;right:0;
     background:rgba(175,213,234,.97);backdrop-filter:blur(14px);
     flex-direction:column;padding:22px;gap:18px;
     border-bottom:1px solid rgba(90,130,165,.25);z-index:100}
   .nav-links.open{display:flex}
   .burger{display:block}
+}
+[data-theme="dark"] .nav-links.open{background:rgba(13,27,44,.98);border-bottom-color:rgba(127,180,216,.15)}
+/* ===== Mobile (≤680px) ===== */
+@media(max-width:680px){
   section{padding:48px 0}
   .hero{padding:48px 0 36px}
   .ht-main{font-size:clamp(3.5rem,10vw,6rem);height:1.9em}
@@ -418,6 +422,16 @@ footer a{color:#CFE4F2}
   .btn{padding:10px 18px;font-size:.82rem}
   .stat-num{font-size:2.6rem}
   .nav-brand{font-size:.82rem}
+  /* 320 px: logo, názov, ☰ a prepínač témy sa musia zmestiť do jedného riadku */
+  .nav-inner{gap:8px}
+  .nav-logo{width:38px;height:38px}
+  .nav-sep{display:none}
+  .burger{font-size:1.4rem}
+  .theme-toggle{width:34px;height:34px;margin-left:4px}
+  .doc-grid{grid-template-columns:minmax(0,1fr)}
+  .doc-row{gap:12px;padding:14px}
+  .doc-ico{width:40px;height:40px}
+  .doc-row .btn-sm{padding:7px 12px}
 }
 
 /* ===== 2026 — Animácie, micro-interactions, vizuálne vylepšenia ===== */
@@ -826,7 +840,7 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
 [data-theme="dark"] body{background:linear-gradient(135deg,#0D1B2C 0%,#10233A 50%,#0F2032 100%)}
 [data-theme="dark"] nav{background:rgba(13,27,44,.85);border-bottom-color:rgba(127,180,216,.15)}
 [data-theme="dark"] nav.scrolled{background:rgba(13,27,44,.97);box-shadow:0 4px 28px rgba(0,0,0,.4)}
-@media(max-width:680px){[data-theme="dark"] .nav-links{background:rgba(13,27,44,.98);border-bottom-color:rgba(127,180,216,.15)}}
+@media(max-width:1023px){[data-theme="dark"] .nav-links{background:rgba(13,27,44,.98);border-bottom-color:rgba(127,180,216,.15)}}
 [data-theme="dark"] .btn{background:#2F6A8A;box-shadow:0 6px 18px rgba(0,0,0,.3)}
 [data-theme="dark"] .btn:hover{background:#37708F}
 [data-theme="dark"] .btn.ghost{background:transparent;color:var(--navy);border-color:var(--brand)}
@@ -1142,7 +1156,7 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
   <div class="wrap foot-bottom">© 2026 ZO OZ KOVO Sedita · Všetky práva vyhradené</div>
 </footer>
 
-<script src="assets/app.js"></script>
+<script src="assets/app.js" defer></script>
 <nav class="tabbar" aria-label="Rýchla navigácia">
   <a href="#aktuality" data-sec="aktuality"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M8 9h5M8 13h5"/></svg><span>Aktuality</span></a>
   <a href="#moje-prava" data-sec="moje-prava"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Práva</span></a>

@@ -715,11 +715,12 @@ init();
       if(on) a.setAttribute("aria-current","location"); else a.removeAttribute("aria-current");
     });
   }
-  // Aktuálna je posledná sekcia, ktorej začiatok prešiel nad 40 % výšky okna
+  // Aktuálna je posledná sekcia, ktorej začiatok prešiel pod navigáciu (+ rezerva),
+  // takže po kliknutí na odkaz sa zvýrazní práve otvorená sekcia aj keď je krátka
   let ticking = false;
   function update(){
     ticking = false;
-    const line = innerHeight * .4;
+    const line = Math.min(innerHeight * .4, 160);
     let cur = null;
     secs.forEach(sec=>{ if(sec.getBoundingClientRect().top <= line) cur = sec.id; });
     // Pod poslednou sledovanou sekciou (pätička) nič nezvýrazňujeme
