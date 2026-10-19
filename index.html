@@ -810,6 +810,31 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
   .sk-l,.sk-ico,.sk-av{animation:none}
 }
 
+/* ===== Anonymný dotazník ===== */
+#dotaznik{scroll-margin-top:90px}
+.form-badge{display:inline-flex;align-items:center;gap:7px;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brand-deep);background:rgba(65,129,166,.12);padding:6px 12px;border-radius:999px;margin-bottom:14px}
+.form-badge svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.anon-note{border-left:4px solid var(--brand);background:rgba(65,129,166,.07);border-radius:0 12px 12px 0;padding:16px 18px;margin:0 0 24px}
+.anon-note h4{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+.anon-note ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.anon-note li{position:relative;padding-left:18px;font-size:.82rem;line-height:1.55}
+.anon-note li::before{content:"";position:absolute;left:2px;top:.45em;width:8px;height:4px;border-left:2px solid var(--success);border-bottom:2px solid var(--success);transform:rotate(-45deg)}
+fieldset.field{border:0;padding:0;min-width:0}
+fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--soft);margin-bottom:9px;padding:0}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{position:relative;cursor:pointer;display:inline-block;margin:0;font-size:inherit;letter-spacing:normal;text-transform:none;font-weight:inherit} /* nededí štýl .field label */
+.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.seg span{display:inline-block;padding:8px 15px;border-radius:999px;border:1.5px solid rgba(90,130,165,.4);font-size:.8rem;font-weight:500;color:var(--soft);transition:all .18s}
+.seg input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+[data-theme="dark"] .seg input:checked+span{background:#2F6A8A;border-color:#2F6A8A}
+.seg input:focus-visible+span{outline:3px solid var(--gold);outline-offset:2px}
+.seg-sm span{font-size:.76rem;padding:7px 13px}
+.seg input[value="urgentne"]:checked+span{background:var(--error);border-color:var(--error)}
+.urgent-note{margin-top:10px;font-size:.8rem;line-height:1.55;background:rgba(192,57,43,.08);border:1.5px solid rgba(192,57,43,.3);border-radius:12px;padding:12px 14px}
+[data-theme="dark"] .urgent-note{background:rgba(255,138,122,.1);border-color:rgba(255,138,122,.35)}
+.form-alt{margin-top:16px;font-size:.78rem}
+.ref-code{display:inline-block;margin:12px 0 4px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.3rem;font-weight:700;letter-spacing:.18em;color:var(--navy);background:rgba(65,129,166,.12);padding:8px 16px;border-radius:10px}
+
 /* ===== Inštalácia aplikácie (PWA) ===== */
 .install-app{margin-top:34px;text-align:center}
 .install-btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#1B395B;box-shadow:0 6px 18px rgba(243,173,77,.25)}
@@ -878,7 +903,7 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
       <a href="#dokumenty" data-sec="dokumenty">Dokumenty</a>
       <a href="#schodze" data-sec="schodze">Schôdze</a>
       <a href="#vybor" data-sec="vybor">Výbor</a>
-      <a href="#podnety" data-sec="podnety">Podnety</a>
+      <a href="#dotaznik" data-sec="podnety">Dotazník</a>
       <a href="#clenstvo" class="btn">Staň sa členom</a>
     </div>
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="Prepnúť na tmavý režim">
@@ -1069,33 +1094,64 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
     <div class="sec-head reveal">
       <span class="eyebrow">Ozvite sa</span>
       <div class="hairline center"></div>
-      <h2>Podnety, sťažnosti a členstvo</h2>
+      <h2>Anonymný dotazník a členstvo</h2>
     </div>
     <div class="form-grid">
-      <div class="form-card reveal" id="clenstvo-anchor">
-        <h3>Formulár pre podnety a sťažnosti</h3>
-        <p>Podnet sa odošle priamo výboru ZO. Môžete ho podať aj anonymne.</p>
-        <form id="complaintForm">
-          <div class="switch-row">
-            <label class="switch"><input type="checkbox" id="anonToggle"><span class="slider"></span></label>
-            <span>Chcem podať podnet <b>anonymne</b></span>
-          </div>
-          <div class="field" id="nameField"><label for="cname">Meno a priezvisko</label><input id="cname" type="text" placeholder="Nepovinné" maxlength="120" autocomplete="name"></div>
-          <div class="field" id="mailField"><label for="cmail">Kontaktný e-mail</label><input id="cmail" type="email" placeholder="Pre odpoveď výboru" maxlength="160" autocomplete="email"></div>
-          <div class="field"><label for="ccat">Kategória</label>
+      <div class="form-card reveal" id="dotaznik">
+        <span class="form-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Anonymný dotazník</span>
+        <h3>Otázky, podnety a nedostatky</h3>
+        <p>Napíšte nám, čo vás trápi v práci — otázku, sťažnosť, nedostatok v BOZP alebo návrh na zlepšenie. Výbor ZO OZ KOVO Sedita sa každým príspevkom zaoberá.</p>
+        <div class="anon-note" role="note">
+          <h4>Vaša anonymita</h4>
+          <ul>
+            <li>Dotazník nežiada meno, e-mail, osobné číslo ani iné údaje o vás.</li>
+            <li>Výbor nevidí vašu IP adresu ani technické údaje o zariadení; web nepoužíva sledovacie cookies.</li>
+            <li>Príspevok sa uloží do tabuľky, ku ktorej má prístup len výbor, a slúži výhradne na riešenie vecí zamestnancov.</li>
+            <li>Anonymitu môžete narušiť len vy sami: neuvádzajte mená, presné časy ani detaily, podľa ktorých by vás bolo možné spoznať.</li>
+          </ul>
+        </div>
+        <form id="complaintForm" novalidate>
+          <fieldset class="field">
+            <legend>Typ príspevku</legend>
+            <div class="seg" role="radiogroup">
+              <label><input type="radio" name="typ" value="otazka" checked><span>Otázka</span></label>
+              <label><input type="radio" name="typ" value="podnet"><span>Podnet</span></label>
+              <label><input type="radio" name="typ" value="staznost"><span>Sťažnosť</span></label>
+              <label><input type="radio" name="typ" value="bozp"><span>Nedostatok BOZP</span></label>
+              <label><input type="radio" name="typ" value="navrh"><span>Návrh na zlepšenie</span></label>
+            </div>
+          </fieldset>
+          <div class="field"><label for="ccat">Téma</label>
             <select id="ccat">
-              <option>Pracovné podmienky</option><option>Mzdy a odmeňovanie</option>
-              <option>BOZP — bezpečnosť</option><option>Vzťahy na pracovisku</option>
-              <option>Kolektívna zmluva</option><option>Iné</option>
+              <option>BOZP — bezpečnosť a ochrana zdravia</option>
+              <option>Zákonník práce a pracovná zmluva</option>
+              <option>Mzdy, príplatky a odmeňovanie</option>
+              <option>Pracovný čas, zmeny a nadčasy</option>
+              <option>Dovolenka, voľno a prekážky v práci</option>
+              <option>Kolektívna zmluva</option>
+              <option>Vzťahy na pracovisku a správanie nadriadených</option>
+              <option>Sociálny fond, benefity a stravovanie</option>
+              <option>Pracovné prostredie a vybavenie</option>
+              <option>Iné</option>
             </select>
           </div>
-          <div class="field"><label for="cmsg">Popis podnetu</label><textarea id="cmsg" required minlength="10" maxlength="5000" placeholder="Opíšte situáciu…" aria-describedby="cmsgHelp cmsgErr"></textarea>
-            <div class="field-meta"><span id="cmsgHelp">Rozpísaný text sa priebežne ukladá v tomto prehliadači.</span><span class="counter" id="cmsgCount" aria-live="polite">0 / 5000</span></div>
+          <fieldset class="field">
+            <legend>Naliehavosť</legend>
+            <div class="seg seg-sm" role="radiogroup">
+              <label><input type="radio" name="naliehavost" value="bezne" checked><span>Bežné</span></label>
+              <label><input type="radio" name="naliehavost" value="dolezite"><span>Dôležité</span></label>
+              <label><input type="radio" name="naliehavost" value="urgentne"><span>Hrozí úraz / škoda</span></label>
+            </div>
+            <p class="urgent-note" id="urgentNote" hidden>Pri <b>bezprostrednom ohrození</b> zdravia neváhajte: prácu prerušte, ihneď informujte nadriadeného alebo bezpečnostného technika, v núdzi volajte <b>112</b>. Dotazník slúži na následné riešenie.</p>
+          </fieldset>
+          <div class="field"><label for="cmsg">Popis</label><textarea id="cmsg" required minlength="10" maxlength="5000" placeholder="Opíšte otázku alebo situáciu — čo sa deje, odkedy, koho sa to týka (bez mien)…" aria-describedby="cmsgHelp cmsgErr"></textarea>
+            <div class="field-meta"><span id="cmsgHelp">Rozpísaný text sa drží len kým je otvorená táto karta.</span><span class="counter" id="cmsgCount" aria-live="polite">0 / 5000</span></div>
             <p class="field-err" id="cmsgErr" role="alert" hidden></p></div>
           <!-- Honeypot — anti-spam: roboty vyplnia toto pole, ľudia nie -->
           <input type="text" id="chpot" name="website" style="display:none!important" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <button class="btn" type="submit">Odoslať podnet</button>
+          <button class="btn" type="submit">Odoslať anonymne</button>
           <p class="field-err form-err" id="formErr" role="alert" hidden></p>
+          <p class="form-alt">Chcete odpoveď osobne? <a href="#vybor">Kontaktujte člena výboru</a>. · <a href="assets/qr-dotaznik.png" download>QR kód na nástenku</a></p>
         </form>
       </div>
       <div class="join-side reveal" id="clenstvo">
@@ -1162,7 +1218,7 @@ main{animation:pageIn .55s .05s cubic-bezier(.23,1,.32,1) both}
   <a href="#moje-prava" data-sec="moje-prava"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Práva</span></a>
   <a href="#dokumenty" data-sec="dokumenty"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></svg><span>Dokumenty</span></a>
   <a href="#vybor" data-sec="vybor"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.2c2.8.3 5 2.6 5 5.8"/></svg><span>Výbor</span></a>
-  <a href="#podnety" data-sec="podnety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span>Podnet</span></a>
+  <a href="#dotaznik" data-sec="podnety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span>Dotazník</span></a>
 </nav>
 <button id="backToTop" aria-label="Späť na začiatok stránky">↑</button>
 </body>

@@ -29,6 +29,9 @@ Vizuálna identita podľa skillu `kovo-sedita-brand` (manuál v4.0): vždy plný
   Žiadne externé zdroje (fonty sú lokálne v `assets/fonts/`).
 - Dáta z API vkladaj do HTML len cez `esc()` a odkazy cez `safeUrl()`.
 - **Service worker** (`sw.js`): po zmene zoznamu `PRECACHE` alebo stratégie zvýš `VERZIA`.
+- Anonymný dotazník (`#dotaznik`) posiela akciu `complaint` so `source: "dotaznik"`; formát a kód pre
+  Apps Script je v `docs/apps-script-dotaznik.md`. Do dotazníka nepridávaj polia, ktoré by človeka
+  identifikovali, a koncept drž len v `sessionStorage`.
 - FAQ v sekcii „Moje práva“ a JSON-LD `FAQPage` v `<head>` upravuj spolu.
 - Pred pushom over v prehliadači (Playwright): žiadne JS chyby, mobil 390 px bez horizontálneho
   scrollu, svetlý aj tmavý režim.

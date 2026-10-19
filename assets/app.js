@@ -410,46 +410,49 @@ function renderBoard(data){
   document.querySelectorAll("#vybor .reveal").forEach(el=>io.observe(el));
 }
 
-/* ---------- Podnet / sťažnosť ---------- */
+/* ---------- Anonymný dotazník (otázky, podnety, sťažnosti, BOZP) ---------- */
 (function(){
   const form = document.getElementById("complaintForm");
   if(!form) return;
-  const anonToggle = document.getElementById("anonToggle");
-  const nameField  = document.getElementById("nameField");
-  const mailField  = document.getElementById("mailField");
-
-  if(anonToggle && nameField){
-    anonToggle.addEventListener("change",()=>{
-      const hidden = anonToggle.checked;
-      nameField.style.display = hidden ? "none" : "";
-      if(mailField) mailField.style.display = hidden ? "none" : "";
-    });
-  }
-
-  // Počítadlo znakov, chybové hlásenia pri poli a priebežné ukladanie rozpísaného textu
-  const DRAFT_KEY = "kovo-podnet-koncept";
+  const TYP = {otazka:"Otázka", podnet:"Podnet", staznost:"Sťažnosť", bozp:"Nedostatok BOZP", navrh:"Návrh na zlepšenie"};
+  const NAL = {bezne:"Bežné", dolezite:"Dôležité", urgentne:"Hrozí úraz / škoda"};
+  // Koncept len v sessionStorage (zmizne so zatvorením karty) — na zdieľanom PC nič neostane.
+  // Staršia verzia webu ukladala koncept trvalo; odstránime ho.
+  const DRAFT_KEY = "kovo-dotaznik-koncept";
+  try{ localStorage.removeItem("kovo-podnet-koncept"); }catch(_){}
   const msg = document.getElementById("cmsg"), msgField = msg.closest(".field");
   const counter = document.getElementById("cmsgCount");
   const msgErr = document.getElementById("cmsgErr"), formErr = document.getElementById("formErr");
   const cat = document.getElementById("ccat");
+  const urgentNote = document.getElementById("urgentNote");
+  const val = name => (form.querySelector(`input[name="${name}"]:checked`) || {}).value;
   function showErr(el, text){ if(!el) return; el.textContent = text; el.hidden = !text; }
   function updateCount(){
     const n = msg.value.length;
     counter.textContent = n + " / 5000";
     counter.classList.toggle("warn", n > 4500);
   }
+  function setRadio(name, v){ const r = form.querySelector(`input[name="${name}"][value="${v}"]`); if(r) r.checked = true; }
+  function syncUrgent(){ if(urgentNote) urgentNote.hidden = val("naliehavost") !== "urgentne"; }
+  // Typ „Nedostatok BOZP“ predvyberie tému BOZP
+  form.querySelectorAll('input[name="typ"]').forEach(r=>r.addEventListener("change", ()=>{
+    if(r.checked && r.value === "bozp") cat.selectedIndex = 0;
+    saveDraft();
+  }));
+  form.querySelectorAll('input[name="naliehavost"]').forEach(r=>r.addEventListener("change", ()=>{ syncUrgent(); saveDraft(); }));
+
   try{
-    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-    if(d && d.message && !msg.value){ msg.value = d.message; if(d.category) cat.value = d.category; }
+    const d = JSON.parse(sessionStorage.getItem(DRAFT_KEY) || "null");
+    if(d && !msg.value){ msg.value = d.message || ""; if(d.category) cat.value = d.category; if(d.typ) setRadio("typ", d.typ); if(d.nal) setRadio("naliehavost", d.nal); }
   }catch(_){}
-  updateCount();
+  updateCount(); syncUrgent();
   let saveT;
   function saveDraft(){
     clearTimeout(saveT);
     saveT = setTimeout(()=>{
       try{
-        if(msg.value.trim()) localStorage.setItem(DRAFT_KEY, JSON.stringify({message:msg.value, category:cat.value}));
-        else localStorage.removeItem(DRAFT_KEY);
+        if(msg.value.trim()) sessionStorage.setItem(DRAFT_KEY, JSON.stringify({message:msg.value, category:cat.value, typ:val("typ"), nal:val("naliehavost")}));
+        else sessionStorage.removeItem(DRAFT_KEY);
       }catch(_){}
     }, 400);
   }
@@ -458,8 +461,13 @@ function renderBoard(data){
     if(msg.value.trim().length >= 10){ showErr(msgErr,""); msgField.classList.remove("invalid"); }
   });
   cat.addEventListener("change", saveDraft);
-  // Vlastné hlásenie namiesto bublinky prehliadača
-  msg.addEventListener("invalid", e=>{ e.preventDefault(); showErr(msgErr,"Prosím, opíšte podnet aspoň 10 znakmi."); msgField.classList.add("invalid"); });
+
+  // Anonymný kód príspevku — člen ho môže uviesť pri otázke na stav bez prezradenia mena
+  function refCode(){
+    const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // bez 0/O a 1/I
+    const r = new Uint8Array(6); crypto.getRandomValues(r);
+    return Array.from(r, x => abc[x % abc.length]).join("");
+  }
 
   form.addEventListener("submit", async e=>{
     e.preventDefault();
@@ -468,26 +476,31 @@ function renderBoard(data){
 
     const btn = form.querySelector("button[type=submit]");
     const orig = btn ? btn.textContent : "";
+    showErr(formErr, "");
+    const text = msg.value.trim().slice(0,5000);
+    if(text.length < 10){
+      showErr(msgErr, "Prosím, opíšte otázku alebo situáciu aspoň 10 znakmi.");
+      msgField.classList.add("invalid"); msg.focus();
+      return;
+    }
     if(btn){ btn.disabled = true; btn.textContent = "Odosielam…"; }
-
-    const anon = !!(anonToggle && anonToggle.checked);
+    const kod = refCode(), typ = TYP[val("typ")] || "", nal = NAL[val("naliehavost")] || "";
+    // Polia name/email/category/message/anonymous zostávajú kvôli súčasnému Apps Scriptu;
+    // typ, naliehavost a kod sú nové stĺpce (pozri docs/apps-script-dotaznik.md).
+    // Kým Apps Script nové polia nepozná, typ je v kategórii a naliehavosť s kódom na konci textu.
     const payload = {
       action   : "complaint",
-      name     : anon ? "" : (document.getElementById("cname")?.value?.trim() || ""),
-      email    : anon ? "" : (document.getElementById("cmail")?.value?.trim() || ""),
-      category : document.getElementById("ccat")?.value || "",
-      message  : document.getElementById("cmsg")?.value?.trim() || "",
-      anonymous: anon,
-      website  : form.querySelector("#chpot")?.value || ""
+      source   : "dotaznik",
+      name     : "",
+      email    : "",
+      anonymous: true,
+      category : `${typ} — ${cat.value}`,
+      tema     : cat.value,
+      typ, naliehavost: nal, kod,
+      message  : `${text}\n\n— Naliehavosť: ${nal} · Kód: ${kod}`,
+      text,
+      website  : honey ? honey.value : ""
     };
-
-    payload.message = payload.message.slice(0,5000);
-    showErr(formErr, "");
-    if(!payload.message || payload.message.length < 10){
-      showErr(msgErr, "Prosím, opíšte podnet aspoň 10 znakmi.");
-      msgField.classList.add("invalid"); msg.focus();
-      if(btn){ btn.disabled=false; btn.textContent=orig; } return;
-    }
     try{
       const r = await fetch(API_BASE + "?action=complaint", {
         method : "POST",
@@ -500,17 +513,20 @@ function renderBoard(data){
       });
       const res = await r.json();
       if(res.ok || res.status==="ok"){
-        try{ localStorage.removeItem(DRAFT_KEY); }catch(_){}
+        try{ sessionStorage.removeItem(DRAFT_KEY); }catch(_){}
         form.innerHTML = `<div class="form-done" role="status" tabindex="-1">
           <svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><path d="M26 41l10 10 18-20"/></svg>
-          <h4>Podnet bol odoslaný</h4><p>Ďakujeme. Výbor ZO OZ KOVO Sedita sa mu bude venovať.</p></div>`;
+          <h4>Ďakujeme, príspevok bol anonymne odoslaný</h4>
+          <p>Váš kód príspevku:</p>
+          <span class="ref-code">${esc(kod)}</span>
+          <p style="margin-top:10px;font-size:.8rem">Kód si môžete poznačiť. Ak sa budete chcieť opýtať na stav riešenia, uveďte len tento kód — nie svoje meno.</p></div>`;
         form.querySelector(".form-done").focus();
       } else {
         throw new Error(res.message||"Chyba servera");
       }
     }catch(err){
       if(btn){ btn.disabled = false; btn.textContent = orig; }
-      showErr(formErr, "Podnet sa nepodarilo odoslať. Text zostal uložený — skúste to prosím o chvíľu znova.");
+      showErr(formErr, "Príspevok sa nepodarilo odoslať. Text zostal vo formulári — skúste to prosím o chvíľu znova.");
     }
   });
 })();
@@ -642,6 +658,18 @@ document.querySelectorAll(".chip[data-cat]").forEach(chip=>{
   });
 });
 
+// Cieľ odkazu zobraziť bez animácie „vysunutia“ — inak prehliadač doskočí o 28 px vedľa
+function showNow(el){
+  const r = el.closest(".reveal");
+  if(r){ r.style.transition = "none"; r.classList.add("in"); io.unobserve(r); void r.offsetHeight; r.style.transition = ""; }
+}
+(function(){
+  const t = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  if(t && !t.matches("details")){ showNow(t); t.scrollIntoView({behavior:"instant"}); }
+})();
+let userScrolled = false;
+["wheel","touchmove","keydown","pointerdown"].forEach(ev=>addEventListener(ev, ()=>{ userScrolled = true; }, {once:true, passive:true}));
+
 /* ---------- Init ---------- */
 async function init(){
   renderMembers();
@@ -661,6 +689,12 @@ async function init(){
   renderBoard(list(boardRaw, DEMO.board));
   dataReady = true;
   if(scrollDocsWhenReady) document.getElementById("dokumenty").scrollIntoView({behavior:"smooth"});
+  // Otvorený odkaz s #kotvou (napr. QR kód → #dotaznik): obsah nad cieľom sa po načítaní dát
+  // zmenil, takže znova doskočiť — ale len ak sa používateľ medzitým sám neposúval
+  else if(!userScrolled && location.hash.length > 1){
+    const t = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if(t && !t.matches("details")){ showNow(t); t.scrollIntoView({behavior:"instant"}); }
+  }
 }
 init();
 
