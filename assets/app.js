@@ -60,6 +60,21 @@ const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 // Povoliť len http(s), mailto, tel a relatívne odkazy — blokuje javascript: URL
 const safeUrl = u => { const s = String(u ?? "").trim(); return /^(https?:|mailto:|tel:|#|\/)/i.test(s) ? esc(s) : ""; };
 
+/* ---------- Pomocné funkcie pre animácie ---------- */
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const scrollAnim = window.CSS && CSS.supports("animation-timeline: view()");
+// Spustí fn raz, keď je prvok aspoň čiastočne v zábere
+function whenVisible(el, fn){
+  if(!("IntersectionObserver" in window)) return fn();
+  const ob = new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ ob.disconnect(); fn(); } },{threshold:.3});
+  ob.observe(el);
+}
+// Plynulý prechod medzi stavmi (View Transitions), inak priama zmena
+function transition(update){
+  if(document.startViewTransition && !reducedMotion) document.startViewTransition(update);
+  else update();
+}
+
 /* ---------- API vrstva (s fallbackom na DEMO) ---------- */
 async function api(action){
   if(!API_BASE) return DEMO[action] ?? null;
@@ -79,12 +94,17 @@ async function renderMembers(){
     el.textContent = d && d.count != null ? d.count : "—";
     return;
   }
-  const target = d.count, dur = 1600, t0 = performance.now();
-  (function tick(t){
-    const p = Math.min((t - t0)/dur, 1), e = 1 - Math.pow(1-p, 3);
-    el.textContent = Math.round(target * e);
-    if(p < 1) requestAnimationFrame(tick);
-  })(t0);
+  // Počítadlo sa spustí až keď je pás so štatistikou v zábere
+  const target = d.count;
+  whenVisible(el, ()=>{
+    if(reducedMotion){ el.textContent = target; return; }
+    const dur = 1600, t0 = performance.now();
+    (function tick(t){
+      const p = Math.min((t - t0)/dur, 1), e = 1 - Math.pow(1-p, 3);
+      el.textContent = Math.round(target * e);
+      if(p < 1) requestAnimationFrame(tick);
+    })(t0);
+  });
   // Čísla z API vynútiť ako čísla — do SVG sa nesmie dostať text
   const h = d.history.map(p=>({m:String(p.m), c:Number(p.c)||0})), first = h[0].c, last = h[h.length-1].c;
   document.getElementById("newMembers").textContent = "+" + (last - first);
@@ -104,14 +124,39 @@ async function renderMembers(){
       <stop offset="1" stop-color="#4181A6" stop-opacity="0"/>
     </linearGradient></defs>
     <path d="${area}" fill="url(#g)"/>
-    <path d="${line}" fill="none" stroke="#4181A6" stroke-width="3" stroke-linecap="round"
-      stroke-dasharray="1200" stroke-dashoffset="1200">
-      <animate attributeName="stroke-dashoffset" from="1200" to="0" dur="1.8s" fill="freeze"/>
+    <path class="ln" d="${line}" fill="none" stroke="#4181A6" stroke-width="3" stroke-linecap="round">
+      ${scrollAnim || reducedMotion ? "" : `<animate attributeName="stroke-dashoffset" from="1200" to="0" dur="1.8s" fill="freeze"/>`}
     </path>
     <circle cx="${x(h.length-1)}" cy="${y(last)}" r="5.5" fill="#1B395B"/>
     <circle cx="${x(h.length-1)}" cy="${y(last)}" r="10" fill="#4181A6" opacity=".25">
-      <animate attributeName="r" values="8;14;8" dur="2.4s" repeatCount="indefinite"/>
-    </circle>`;
+      ${reducedMotion ? "" : `<animate attributeName="r" values="8;14;8" dur="2.4s" repeatCount="3"/>`}
+    </circle>
+    <line class="hover-line" x1="0" x2="0" y1="${pad}" y2="${H-pad}" visibility="hidden"/>
+    <circle class="hover-dot" r="6" visibility="hidden"/>`;
+  if(!scrollAnim && !reducedMotion) svg.querySelector(".ln").setAttribute("stroke-dasharray","1200");
+  svg.setAttribute("aria-label", "Vývoj počtu členov: " + h.map(p=>p.m+" "+p.c).join(", "));
+
+  // Popis hodnoty pri prechode myšou / prstom
+  const wrap = svg.parentElement;
+  let tip = wrap.querySelector(".chart-tip");
+  if(!tip){ tip = document.createElement("div"); tip.className = "chart-tip"; tip.hidden = true; wrap.appendChild(tip); }
+  const hl = svg.querySelector(".hover-line"), hd = svg.querySelector(".hover-dot");
+  function show(ev){
+    const r = svg.getBoundingClientRect();
+    const vx = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(h.length-1, Math.round((vx - pad) / ((W-2*pad)/(h.length-1)))));
+    const px = x(i), py = y(h[i].c);
+    hl.setAttribute("x1",px); hl.setAttribute("x2",px); hl.setAttribute("visibility","visible");
+    hd.setAttribute("cx",px); hd.setAttribute("cy",py); hd.setAttribute("visibility","visible");
+    tip.textContent = "";
+    tip.append(h[i].m + ": ");
+    const b = document.createElement("b"); b.textContent = h[i].c; tip.append(b, " členov");
+    tip.style.left = (px / W * r.width) + "px";
+    tip.style.top = (py / H * r.height) + "px";
+    tip.hidden = false;
+  }
+  function hide(){ hl.setAttribute("visibility","hidden"); hd.setAttribute("visibility","hidden"); tip.hidden = true; }
+  svg.onpointermove = show; svg.onpointerdown = show; svg.onpointerleave = hide;
 }
 
 /* ---------- Newsfilter ---------- */
@@ -123,8 +168,10 @@ function renderNews(cat="all"){
     grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Momentálne žiadne aktuality v tejto kategórii.</p>`;
     return;
   }
-  grid.innerHTML = items.map(n => `
-    <article class="news-card">
+  grid.removeAttribute("aria-busy");
+  // Najnovšia správa ako veľká karta; mená pre plynulý presun kariet pri filtrovaní
+  grid.innerHTML = items.map((n,i) => `
+    <article class="news-card${i===0 && items.length>2 ? " feature" : ""}" style="view-transition-name:nc-${newsData.indexOf(n)}">
       <div class="news-top">
         <span class="tag ${n.status==="platne"?"platne":"navrh"}">${n.status==="platne"?"Platí":"Navrhované"}</span>
         <span class="news-date">${esc(n.date)}</span>
@@ -140,7 +187,7 @@ document.querySelectorAll(".chip[data-cat]").forEach(chip=>{
   chip.addEventListener("click",()=>{
     document.querySelectorAll(".chip[data-cat]").forEach(c=>c.classList.remove("active"));
     chip.classList.add("active");
-    renderNews(chip.dataset.cat);
+    transition(()=>renderNews(chip.dataset.cat));
   });
 });
 
@@ -176,8 +223,9 @@ function renderDocs(tab=docTab){
     list.innerHTML = `<p style="padding:32px 0;text-align:center;opacity:.6;font-size:.9rem">Momentálne žiadne dokumenty v tejto kategórii.</p>`;
     return;
   }
+  list.removeAttribute("aria-busy");
   list.innerHTML = items.map(d=>`
-    <div class="doc-row reveal">
+    <div class="doc-row reveal" style="view-transition-name:dr-${docsData.indexOf(d)}">
       <div class="doc-ico">${esc(d.type||"PDF")}</div>
       <div class="doc-info">
         <b>${esc(d.name||"Dokument")}</b>
@@ -199,7 +247,7 @@ function selectDocTab(tab){
   renderDocs(tab);
 }
 document.querySelectorAll(".chip[data-doc]").forEach(btn=>{
-  btn.addEventListener("click",()=>selectDocTab(btn.dataset.doc));
+  btn.addEventListener("click",()=>transition(()=>selectDocTab(btn.dataset.doc)));
 });
 // Odkazy s data-doc-tab (napr. „Stiahnuť prihlášku“) prepnú kartu a nechajú prehliadač posunúť na #dokumenty
 let dataReady = false, scrollDocsWhenReady = false;
@@ -211,11 +259,55 @@ document.querySelectorAll("[data-doc-tab]").forEach(a=>{
   });
 });
 
+/* ---------- Schôdze: odpočet a pozvánka do kalendára (.ics) ---------- */
+let nextNextMeeting = null, nextMeetingDate = null;
+function countdown(d){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const day = new Date(d); day.setHours(0,0,0,0);
+  const n = Math.round((day - today) / 864e5);
+  if(n <= 0) return "Dnes";
+  if(n === 1) return "Zajtra";
+  if(n < 5) return "O " + n + " dni";
+  return "O " + n + " dní";
+}
+function icsText(v){ return String(v ?? "").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/([,;])/g,"\\$1"); }
+function downloadIcs(m, date){
+  const pad = n => String(n).padStart(2,"0");
+  const [hh, mm] = /^(\d{1,2}):(\d{2})/.test(m.time||"") ? m.time.split(":").map(Number) : [null,null];
+  const ymd = `${date.getFullYear()}${pad(date.getMonth()+1)}${pad(date.getDate())}`;
+  const stamp = new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
+  let start, end;
+  if(hh === null){ // celodenná udalosť
+    const nx = new Date(date); nx.setDate(nx.getDate()+1);
+    start = `DTSTART;VALUE=DATE:${ymd}`;
+    end = `DTEND;VALUE=DATE:${nx.getFullYear()}${pad(nx.getMonth()+1)}${pad(nx.getDate())}`;
+  } else {          // miestny čas, 2 hodiny
+    start = `DTSTART;TZID=Europe/Bratislava:${ymd}T${pad(hh)}${pad(mm)}00`;
+    end = `DTEND;TZID=Europe/Bratislava:${ymd}T${pad(Math.min(hh+2,23))}${pad(mm)}00`;
+  }
+  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//ZO OZ KOVO Sedita//Web//SK","CALSCALE:GREGORIAN","BEGIN:VEVENT",
+    `UID:${ymd}-${Math.random().toString(36).slice(2)}@kovo-sedita.github.io`, `DTSTAMP:${stamp}`, start, end,
+    `SUMMARY:${icsText(m.title || "Schôdza ZO OZ KOVO Sedita")}`,
+    m.place ? `LOCATION:${icsText(m.place)}` : "",
+    m.agenda && m.agenda.length ? `DESCRIPTION:${icsText("Program:\n" + m.agenda.map((a,i)=>(i+1)+". "+a).join("\n"))}` : "",
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Schôdza ZO OZ KOVO Sedita","TRIGGER:-P1D","END:VALARM",
+    "END:VEVENT","END:VCALENDAR"].filter(Boolean);
+  const blob = new Blob([lines.join("\r\n")], {type:"text/calendar;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "schodza-zo-oz-kovo-sedita.ics";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+document.addEventListener("click", e=>{
+  if(e.target.closest("#calBtn") && nextNextMeeting) downloadIcs(nextNextMeeting, nextMeetingDate);
+});
+
 /* ---------- Schôdze ---------- */
 function renderMeetings(data){
   const nextEl = document.getElementById("meetNext");
   const pastEl = document.getElementById("meetPast");
   if(!nextEl || !pastEl) return;
+  nextNextMeeting = null;
 
   // API/DEMO môže vrátiť pole schôdzí alebo objekt {next, past}
   let list = Array.isArray(data) ? data
@@ -255,6 +347,7 @@ function renderMeetings(data){
     nextEl.innerHTML = `<p style="opacity:.6;font-size:.9rem">Momentálne nie sú naplánované žiadne schôdze.</p>`;
   } else {
     const m = upcoming[0];
+    nextNextMeeting = m; nextMeetingDate = parseDate(m.date);
     nextEl.innerHTML = `
       <div class="meet-card next-meet reveal">
         <div class="meet-badge">Najbližšia schôdza</div>
@@ -265,6 +358,13 @@ function renderMeetings(data){
         </div>
         ${m.agenda.length?`<ul class="meet-agenda">${m.agenda.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>`:""}
         ${m.note?`<p class="meet-note">${esc(m.note)}</p>`:""}
+        <div class="meet-actions">
+          <span class="meet-count">${esc(countdown(parseDate(m.date)))}</span>
+          <button class="btn btn-sm btn-cal" type="button" id="calBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>
+            Pridať do kalendára
+          </button>
+        </div>
       </div>
       ${upcoming.slice(1).map(u=>`
       <div class="meet-card reveal">
@@ -295,6 +395,7 @@ function renderBoard(data){
     grid.innerHTML = `<p style="text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Informácie o výbore sa načítavajú…</p>`;
     return;
   }
+  grid.removeAttribute("aria-busy");
   grid.innerHTML = data.map(m=>`
     <div class="board-card reveal" role="article">
       <div class="avatar" aria-hidden="true">${esc((m.name||"?")[0].toUpperCase())}</div>
@@ -325,6 +426,41 @@ function renderBoard(data){
     });
   }
 
+  // Počítadlo znakov, chybové hlásenia pri poli a priebežné ukladanie rozpísaného textu
+  const DRAFT_KEY = "kovo-podnet-koncept";
+  const msg = document.getElementById("cmsg"), msgField = msg.closest(".field");
+  const counter = document.getElementById("cmsgCount");
+  const msgErr = document.getElementById("cmsgErr"), formErr = document.getElementById("formErr");
+  const cat = document.getElementById("ccat");
+  function showErr(el, text){ if(!el) return; el.textContent = text; el.hidden = !text; }
+  function updateCount(){
+    const n = msg.value.length;
+    counter.textContent = n + " / 5000";
+    counter.classList.toggle("warn", n > 4500);
+  }
+  try{
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+    if(d && d.message && !msg.value){ msg.value = d.message; if(d.category) cat.value = d.category; }
+  }catch(_){}
+  updateCount();
+  let saveT;
+  function saveDraft(){
+    clearTimeout(saveT);
+    saveT = setTimeout(()=>{
+      try{
+        if(msg.value.trim()) localStorage.setItem(DRAFT_KEY, JSON.stringify({message:msg.value, category:cat.value}));
+        else localStorage.removeItem(DRAFT_KEY);
+      }catch(_){}
+    }, 400);
+  }
+  msg.addEventListener("input", ()=>{
+    updateCount(); saveDraft();
+    if(msg.value.trim().length >= 10){ showErr(msgErr,""); msgField.classList.remove("invalid"); }
+  });
+  cat.addEventListener("change", saveDraft);
+  // Vlastné hlásenie namiesto bublinky prehliadača
+  msg.addEventListener("invalid", e=>{ e.preventDefault(); showErr(msgErr,"Prosím, opíšte podnet aspoň 10 znakmi."); msgField.classList.add("invalid"); });
+
   form.addEventListener("submit", async e=>{
     e.preventDefault();
     const honey = form.querySelector("#chpot");
@@ -346,7 +482,12 @@ function renderBoard(data){
     };
 
     payload.message = payload.message.slice(0,5000);
-    if(!payload.message || payload.message.length < 10){ alert("Prosím opíšte podnet (min. 10 znakov)."); if(btn){ btn.disabled=false; btn.textContent=orig; } return; }
+    showErr(formErr, "");
+    if(!payload.message || payload.message.length < 10){
+      showErr(msgErr, "Prosím, opíšte podnet aspoň 10 znakmi.");
+      msgField.classList.add("invalid"); msg.focus();
+      if(btn){ btn.disabled=false; btn.textContent=orig; } return;
+    }
     try{
       const r = await fetch(API_BASE + "?action=complaint", {
         method : "POST",
@@ -359,13 +500,17 @@ function renderBoard(data){
       });
       const res = await r.json();
       if(res.ok || res.status==="ok"){
-        form.innerHTML = `<p style="text-align:center;padding:32px 0;font-size:1rem;color:var(--navy)">✅ Podnet bol odoslaný. Ďakujeme!</p>`;
+        try{ localStorage.removeItem(DRAFT_KEY); }catch(_){}
+        form.innerHTML = `<div class="form-done" role="status" tabindex="-1">
+          <svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><path d="M26 41l10 10 18-20"/></svg>
+          <h4>Podnet bol odoslaný</h4><p>Ďakujeme. Výbor ZO OZ KOVO Sedita sa mu bude venovať.</p></div>`;
+        form.querySelector(".form-done").focus();
       } else {
         throw new Error(res.message||"Chyba servera");
       }
     }catch(err){
       if(btn){ btn.disabled = false; btn.textContent = orig; }
-      alert("Nepodarilo sa odoslať podnet. Skúste to prosím neskôr.\n\n"+err.message);
+      showErr(formErr, "Podnet sa nepodarilo odoslať. Text zostal uložený — skúste to prosím o chvíľu znova.");
     }
   });
 })();
@@ -388,7 +533,15 @@ function renderBoard(data){
   if(btn) btn.addEventListener("click", ()=>{
     const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     try{ localStorage.setItem("theme", next); }catch(e){}
-    apply(next);
+    if(!document.startViewTransition || reducedMotion){ apply(next); return; }
+    const r = btn.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const rad = Math.hypot(Math.max(cx, innerWidth-cx), Math.max(cy, innerHeight-cy));
+    root.classList.add("theme-vt");
+    const vt = document.startViewTransition(()=>apply(next));
+    vt.ready.then(()=>root.animate(
+      {clipPath:[`circle(0px at ${cx}px ${cy}px)`, `circle(${rad}px at ${cx}px ${cy}px)`]},
+      {duration:520, easing:"cubic-bezier(.4,0,.2,1)", pseudoElement:"::view-transition-new(root)"}));
+    vt.finished.finally(()=>root.classList.remove("theme-vt"));
   });
   // Kým si používateľ nevyberie sám, sledujeme nastavenie systému
   mq.addEventListener("change", e=>{
@@ -545,4 +698,63 @@ init();
   // iPhone/iPad: Safari nemá tlačidlo inštalácie, zobrazíme návod
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   if(isIos){ box.hidden = false; ios.hidden = false; }
+})();
+
+/* ---------- Aktuálna sekcia v menu a v spodnej lište ---------- */
+(function(){
+  const links = [...document.querySelectorAll("a[data-sec]")];
+  const ids = [...new Set(links.map(a=>a.dataset.sec))];
+  // Poradie podľa polohy na stránke, nie podľa poradia odkazov
+  const secs = ids.map(id=>document.getElementById(id)).filter(Boolean)
+    .sort((x,y)=>x.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+  if(!secs.length) return;
+  function mark(id){
+    links.forEach(a=>{
+      const on = a.dataset.sec === id;
+      a.classList.toggle("is-current", on);
+      if(on) a.setAttribute("aria-current","location"); else a.removeAttribute("aria-current");
+    });
+  }
+  // Aktuálna je posledná sekcia, ktorej začiatok prešiel nad 40 % výšky okna
+  let ticking = false;
+  function update(){
+    ticking = false;
+    const line = innerHeight * .4;
+    let cur = null;
+    secs.forEach(sec=>{ if(sec.getBoundingClientRect().top <= line) cur = sec.id; });
+    // Pod poslednou sledovanou sekciou (pätička) nič nezvýrazňujeme
+    const last = secs[secs.length-1];
+    if(cur === last.id && last.getBoundingClientRect().bottom < line) cur = null;
+    mark(cur);
+  }
+  addEventListener("scroll", ()=>{ if(!ticking){ ticking = true; requestAnimationFrame(update); } }, {passive:true});
+  addEventListener("resize", update);
+  update();
+})();
+
+/* ---------- Moje práva: odkaz na konkrétnu otázku ---------- */
+(function(){
+  function openFromHash(){
+    const id = location.hash.slice(1);
+    if(!/^pravo-\d+$/.test(id)) return;
+    const d = document.getElementById(id);
+    if(!d) return;
+    d.open = true;
+    d.classList.remove("flash"); void d.offsetWidth; d.classList.add("flash");
+    d.scrollIntoView({block:"center", behavior: reducedMotion ? "auto" : "smooth"});
+  }
+  window.addEventListener("hashchange", openFromHash);
+  openFromHash();
+  document.addEventListener("click", async e=>{
+    const b = e.target.closest(".faq-copy");
+    if(!b) return;
+    const id = b.closest(".faq-item").id;
+    const url = location.origin + location.pathname + "#" + id;
+    let ok = false;
+    try{ await navigator.clipboard.writeText(url); ok = true; }catch(_){}
+    if(!ok && navigator.share){ try{ await navigator.share({url}); ok = true; }catch(_){} }
+    if(!ok) history.replaceState(null, "", "#" + id);
+    b.textContent = ok ? "Skopírované ✓" : "Odkaz je v adrese";
+    setTimeout(()=>{ b.textContent = "Kopírovať odkaz"; }, 2000);
+  });
 })();
