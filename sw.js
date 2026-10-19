@@ -1,6 +1,6 @@
 /* Service worker ZO OZ KOVO Sedita — offline režim a rýchle opakované načítanie.
    Pri zmene zoznamu PRECACHE alebo stratégie zvýš VERZIA, staré cache sa zmažú. */
-const VERZIA = "kovo-v1";
+const VERZIA = "kovo-v2";
 const STATIC = VERZIA + "-static";
 const DATA = VERZIA + "-data";
 
