@@ -19,13 +19,10 @@ const DEMO = {
   members: { count: 86, history: [
     {m:"Júl",c:48},{m:"Aug",c:52},{m:"Sep",c:55},{m:"Okt",c:59},{m:"Nov",c:63},{m:"Dec",c:66},
     {m:"Jan",c:70},{m:"Feb",c:74},{m:"Mar",c:78},{m:"Apr",c:80},{m:"Máj",c:83},{m:"Jún",c:86}]},
+  /* Záložné aktuality (keď API nie je dostupné) — len overené údaje z oficiálnych zdrojov. */
   news: [
-    {cat:"mzdy",date:"5. 6. 2026",title:"Minimálna mzda od 1. 1. 2027",text:"MPSVR zverejnilo mechanizmus výpočtu minimálnej mzdy na rok 2027. Týka sa všetkých zamestnancov v pracovnom pomere.",src:"MPSVR SR",url:"#",status:"navrh"},
-    {cat:"legislativa",date:"28. 5. 2026",title:"Novela Zákonníka práce — pružné formy práce",text:"Účinnosť od 1. 9. 2026. Rozširuje právo zamestnanca požiadať o home office a kratší úväzok.",src:"Slov-Lex",url:"#",status:"platne"},
-    {cat:"rodicia",date:"20. 5. 2026",title:"Zmeny v rodičovskom príspevku",text:"Sociálna poisťovňa informuje o nových sumách rodičovského príspevku. Platí pre rodičov detí do 3 rokov.",src:"Sociálna poisťovňa",url:"#",status:"platne"},
-    {cat:"bozp",date:"12. 5. 2026",title:"Kontroly inšpekcie práce v potravinárstve",text:"Národný inšpektorát práce ohlásil zameranie kontrol na manipuláciu s bremenami a prácu v hluku.",src:"NIP",url:"#",status:"platne"},
-    {cat:"odbory",date:"30. 4. 2026",title:"Dodatok č. 3 ku kolektívnej zmluve",text:"Dohoda o vymedzení vážnych prevádzkových dôvodov platí do 31. 12. 2025. Pripravuje sa predĺženie.",src:"ZO OZ KOVO Sedita",url:"#",status:"platne"},
-    {cat:"mzdy",date:"18. 4. 2026",title:"Príplatky za víkend a noc — prehľad súm",text:"Aktuálne sumy mzdových zvýhodnení podľa § 122a–123 Zákonníka práce po poslednej valorizácii.",src:"MPSVR SR",url:"#",status:"platne"}
+    {cat:"mzdy",date:"28. 10. 2026",title:"Stravné a stravovanie od 1. 12. 2026",text:"Stravné pri tuzemských pracovných cestách: 9,80 € (5–12 h), 14,60 € (nad 12–18 h), 21,70 € (nad 18 h). Stravovacia poukážka musí mať hodnotu najmenej 75 % stravného za 5–12 h, teda 7,35 €.",src:"Oznámenie MPSVR SR č. 255/2026 Z. z., § 152 Zákonníka práce",url:"https://static.slov-lex.sk/static/SK/ZZ/2026/255/vyhlasene_znenie.html",status:"platne"},
+    {cat:"mzdy",date:"23. 9. 2026",title:"Minimálna mzda od 1. 1. 2027: 972 €",text:"Od 1. 1. 2027 je minimálna mzda v 1. stupni náročnosti 972 € mesačne, resp. 5,586 € za hodinu pri 40 h týždenne (6. stupeň: 1 552 €). S ňou rastú aj zákonné príplatky za noc, sobotu a nedeľu.",src:"Oznámenie MPSVR SR č. 233/2026 Z. z.",url:"https://static.slov-lex.sk/static/SK/ZZ/2026/233/vyhlasene_znenie.html",status:"platne"}
   ],
   docs: [
     {cat:"kz",name:"Kolektívna zmluva IDC 2025 – 2027",desc:"Úplné znenie platnej KZ",type:"PDF",url:"#"},
@@ -38,12 +35,7 @@ const DEMO = {
     {cat:"tlaciva",name:"Žiadosť o sociálnu výpomoc",desc:"Pre členov ZO",type:"DOC",url:"#"}
   ],
   meetings: {
-    next: {
-      date:"25. júna 2026",
-      time:"15:00",
-      place:"Zasadačka — budova výroby",
-      agenda:"1. Správa predsedu o činnosti ZO\n2. Stav rokovaní o KZ 2025–2027\n3. Plán aktivít na 2. polrok 2026\n4. Rôzne — diskusia"
-    },
+    next: null,
     past: [
       {date:"22. 5. 2026", title:"Zápisnica — členská schôdza", minutesUrl:"#"},
       {date:"14. 3. 2026", title:"Zápisnica — výbor ZO", minutesUrl:"#"},
@@ -344,7 +336,7 @@ function renderMeetings(data){
   }
 
   if(!upcoming.length){
-    nextEl.innerHTML = `<p style="opacity:.6;font-size:.9rem">Momentálne nie sú naplánované žiadne schôdze.</p>`;
+    nextEl.innerHTML = `<p class="meet-none">Termín najbližšej schôdze zatiaľ nie je naplánovaný. Oznámime ho tu aj na nástenke.</p>`;
   } else {
     const m = upcoming[0];
     nextNextMeeting = m; nextMeetingDate = parseDate(m.date);
@@ -792,4 +784,55 @@ init();
     b.textContent = ok ? "Skopírované ✓" : "Odkaz je v adrese";
     setTimeout(()=>{ b.textContent = "Kopírovať odkaz"; }, 2000);
   });
+})();
+
+/* ---------- Kalkulačka príplatkov ----------
+   Zákon: noc § 123 ZP (40 %, riziková práca 50 % hodinovej minimálnej mzdy), sobota § 122a (50 %),
+   nedeľa § 122b (100 %), sviatok § 122 (100 % priemerného zárobku), nadčas § 121 (25 %, rizikové 35 %).
+   Hodinová minimálna mzda pri 40 h: 2026 = 5,259 € (č. 244/2025 Z. z.), 2027 = 5,586 € (č. 233/2026 Z. z.);
+   pri kratšom ustanovenom týždennom pracovnom čase sa zvyšuje v pomere 40 / ustanovený čas,
+   zaokrúhlene na 3 desatinné miesta (MPSVR SR).
+   KZ / Pravidlá odmeňovania I.D.C. 2025–2027: sviatok 125 %, nadčas 35 % (rizikové 40 %),
+   pevné sumy noc 1,88 € (rizikové 2,35 €), sobota 2,35 €, nedeľa 4,69 €. Platí vždy vyššia suma. */
+(function(){
+  const form = document.getElementById("calcForm");
+  if(!form) return;
+  const MIN_H40 = { "2026": 5.259, "2027": 5.586 };
+  const KZ = { noc: 1.88, nocR: 2.35, sob: 2.35, ned: 4.69 };
+  const $ = id => document.getElementById(id);
+  $("kYear").value = new Date() >= new Date(2027, 0, 1) ? "2027" : "2026";
+  const eur = n => n.toLocaleString("sk-SK", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
+  const hours = id => { const v = parseFloat(String($(id).value).replace(",", ".")); return isFinite(v) && v > 0 ? Math.min(v, 744) : 0; };
+
+  function calc(){
+    const year = $("kYear").value;
+    const week = parseFloat($("kWeek").value);
+    const risk = $("kRisk").checked;
+    const avg  = hours("kAvg");
+    const minH = Math.round(MIN_H40[year] * 40 / week * 1000) / 1000;
+    const rows = [
+      {label:"Nočná práca (22–6 h)", h:hours("kNoc"), law:minH*(risk?.5:.4), kz:risk?KZ.nocR:KZ.noc, lawTxt:`${risk?50:40} % min. hodinovej mzdy`, kzTxt:"suma podľa KZ"},
+      {label:"Sobota", h:hours("kSob"), law:minH*.5, kz:KZ.sob, lawTxt:"50 % min. hodinovej mzdy", kzTxt:"suma podľa KZ"},
+      {label:"Nedeľa", h:hours("kNed"), law:minH, kz:KZ.ned, lawTxt:"100 % min. hodinovej mzdy", kzTxt:"suma podľa KZ"},
+      {label:"Sviatok", h:hours("kSv"), law:avg, kz:avg*1.25, lawTxt:"100 % priem. zárobku", kzTxt:"125 % priem. zárobku (KZ)", avg:true},
+      {label:"Nadčas", h:hours("kNad"), law:avg*(risk?.35:.25), kz:avg*(risk?.40:.35), lawTxt:`${risk?35:25} % priem. zárobku`, kzTxt:`${risk?40:35} % priem. zárobku (KZ)`, avg:true}
+    ];
+    let total = 0, missing = false;
+    $("calcBody").innerHTML = rows.map(r=>{
+      const useKz = r.kz > r.law + 1e-9, rate = Math.max(r.law, r.kz), sum = rate * r.h;
+      const noAvg = r.avg && !avg;
+      if(noAvg && r.h) missing = true;
+      total += noAvg ? 0 : sum;
+      return `<tr${r.h ? "" : ' class="zero"'}><th scope="row">${r.label}<small>${useKz ? r.kzTxt : r.lawTxt}</small></th>`+
+        `<td>${noAvg ? "—" : eur(rate)}<small>za hodinu</small></td><td>${r.h.toLocaleString("sk-SK")} h</td>`+
+        `<td><b>${noAvg && r.h ? "—" : eur(sum)}</b></td></tr>`;
+    }).join("");
+    $("calcTotal").textContent = eur(total);
+    $("calcWarn").hidden = !missing;
+    $("calcMinH").textContent = `Hodinová minimálna mzda ${year} pri ${String(week).replace(".", ",")} h týždenne: ${minH.toLocaleString("sk-SK", {minimumFractionDigits:3})} €.`;
+  }
+  form.addEventListener("input", calc);
+  form.addEventListener("change", calc);
+  form.addEventListener("submit", e => e.preventDefault());
+  calc();
 })();
