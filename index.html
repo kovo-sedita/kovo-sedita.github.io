@@ -57,10 +57,10 @@
  "mainEntity": [
   {
    "@type": "Question",
-   "name": "Aká je minimálna mzda v roku 2026?",
+   "name": "Aká je minimálna mzda v roku 2026 a 2027?",
    "acceptedAnswer": {
     "@type": "Answer",
-    "text": "Od 1. 1. 2026 je minimálna mzda 915 € mesačne , čo je 5,259 € za hodinu pri 40-hodinovom týždennom pracovnom čase. Ide o sumu pre 1. stupeň náročnosti práce — pre náročnejšie pozície platia vyššie minimálne mzdové nároky. (Zákon č. 663/2007 Z. z. o minimálnej mzde)"
+    "text": "Od 1. 1. 2026 je minimálna mzda 915 € mesačne , čo je 5,259 € za hodinu pri 40-hodinovom týždennom pracovnom čase. Ide o sumu pre 1. stupeň náročnosti práce — pre náročnejšie pozície platia vyššie minimálne mzdové nároky. Od 1. 1. 2027 stúpa minimálna mzda na 972 € mesačne , resp. 5,586 € za hodinu (6. stupeň náročnosti: 1 552 €). Ak je na prevádzke ustanovený kratší týždenný pracovný čas ako 40 hodín (napr. 37,5 h pri trojzmennej prevádzke), hodinová minimálna mzda sa úmerne zvyšuje. (Zákon č. 663/2007 Z. z., oznámenie č. 233/2026 Z. z.)"
    }
   },
   {
@@ -92,7 +92,7 @@
    "name": "Aké príplatky mi patria za noc, víkend a sviatok?",
    "acceptedAnswer": {
     "@type": "Answer",
-    "text": "Zákonné minimum v roku 2026 (počítané z hodinovej minimálnej mzdy 5,259 €): nočná práca (22:00–6:00): 40 % ≈ 2,10 €/h , pri rizikovej práci 50 % ≈ 2,63 €/h, sobota: 50 % ≈ 2,63 €/h , nedeľa: 100 % ≈ 5,26 €/h , sviatok: 100 % vášho priemerného zárobku. Kolektívna zmluva alebo dohoda môže v zákonom určených prípadoch sadzby upraviť — aktuálne sumy pre našich zamestnancov nájdete v kolektívnej zmluve. (§ 122–123 Zákonníka práce)"
+    "text": "Zákonné minimum v roku 2026 (počítané z hodinovej minimálnej mzdy 5,259 €): nočná práca (22:00–6:00): 40 % ≈ 2,10 €/h , pri rizikovej práci 50 % ≈ 2,63 €/h, sobota: 50 % ≈ 2,63 €/h , nedeľa: 100 % ≈ 5,26 €/h , sviatok: 100 % vášho priemerného zárobku. Od 1. 1. 2027 (hodinová minimálna mzda 5,586 € pri 40 h týždenne): noc 2,23 €/h (riziková práca 2,79 €/h), sobota 2,79 €/h , nedeľa 5,59 €/h . Pri kratšom ustanovenom pracovnom čase sú sumy vyššie. Príplatky sa sčítavajú. Kolektívna zmluva môže dávať viac — u nás napr. 125 % za sviatok. Svoju sumu si vypočítajte v kalkulačke príplatkov . (§ 122–123 Zákonníka práce, oznámenie č. 233/2026 Z. z.)"
    }
   },
   {
@@ -133,6 +133,14 @@
    "acceptedAnswer": {
     "@type": "Answer",
     "text": "Zamestnávateľ musí výpoveď alebo okamžité skončenie pracovného pomeru vopred prerokovať so zástupcami zamestnancov — u nás s výborom ZO OZ KOVO Sedita. Inak je výpoveď neplatná . Výbor sa musí vyjadriť do 7 pracovných dní (pri okamžitom skončení do 2). Ak sa niečo také týka vás, ozvite sa nám čo najskôr. (§ 74 Zákonníka práce)"
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Mám nárok na stravovanie a aká musí byť hodnota stravnej karty?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Zamestnávateľ musí zabezpečiť stravovanie v každej zmene, ktorá trvá viac ako 4 hodiny . Prispieva najmenej 55 % ceny jedla , najviac však 55 % stravného pre pracovnú cestu 5–12 hodín. Od 1. 12. 2026 je toto stravné 9,80 € , preto musí mať stravovacia poukážka (aj elektronická karta) hodnotu najmenej 7,35 € a príspevok zamestnávateľa je najviac 5,39 € na jedlo. K tomu sa pridáva príspevok zo sociálneho fondu podľa kolektívnej zmluvy. (§ 152 Zákonníka práce, oznámenie č. 255/2026 Z. z.)"
    }
   }
  ]
@@ -856,6 +864,40 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
 [data-theme="dark"] .theme-toggle .i-moon{display:none}
 @media(max-width:680px){.theme-toggle{margin-left:8px;width:38px;height:38px}}
 
+/* ===== Karty KZ + kalkulačka príplatkov ===== */
+.kz-head{text-align:center;font-size:1.15rem;font-weight:600;color:var(--navy);margin:0 0 18px}
+.kz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:0 auto 16px}
+.kz-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 22px 20px;display:flex;flex-direction:column;gap:6px;border-top:4px solid var(--brand)}
+.kz-big{font-size:1.85rem;font-weight:700;color:var(--navy);line-height:1.1}
+.kz-card b{color:var(--navy);font-size:.95rem}
+.kz-card p{font-size:.84rem;line-height:1.55;color:var(--soft)}
+.kz-note{max-width:860px;margin:0 auto 46px;text-align:center;font-size:.8rem;color:var(--soft);line-height:1.6}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px;align-items:start;max-width:1040px;margin:0 auto}
+.calc .form-card{padding:28px}
+.calc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}
+.calc-check{display:flex;gap:10px;align-items:center;font-size:.9rem;color:var(--navy);cursor:pointer}
+.calc-check input{width:18px;height:18px;accent-color:var(--brand-deep)}
+.calc-table{width:100%;border-collapse:collapse;font-size:.86rem}
+.calc-table th,.calc-table td{padding:10px 6px;border-bottom:1px solid rgba(90,130,165,.2);text-align:right;vertical-align:top}
+.calc-table td{white-space:nowrap}
+.calc-table thead th{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);font-weight:600}
+.calc-table th[scope=row],.calc-table thead th:first-child{text-align:left;color:var(--navy);font-weight:600}
+.calc-table small{display:block;font-weight:400;color:var(--soft);font-size:.72rem}
+.calc-table tr.zero th,.calc-table tr.zero td,.calc-table tr.zero b{color:var(--soft);font-weight:400}
+.calc-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:16px;padding:16px 18px;border-radius:14px;background:#1B395B;color:#fff}
+.calc-total b{font-size:1.45rem;white-space:nowrap}
+.calc-warn{margin-top:10px;font-size:.85rem;font-weight:500;color:#8A5410}
+.calc-meta{margin-top:10px;font-size:.76rem;color:var(--soft);line-height:1.5}
+.calc-meta a{text-decoration:underline}
+@media(max-width:980px){.kz-grid{grid-template-columns:repeat(2,1fr)}.calc{grid-template-columns:1fr}}
+@media(max-width:680px){.kz-grid{grid-template-columns:1fr}.calc .form-card{padding:20px}.calc-table{font-size:.8rem}.calc-table th,.calc-table td{padding:9px 3px}.calc-table td small{display:none}.calc-table th[scope=row]{white-space:normal}}
+[data-theme="dark"] .calc-total{background:#0F2236;border:1px solid rgba(127,180,216,.3)}
+[data-theme="dark"] .calc-warn{color:#F3C78A}
+/* Kontrast textu a odkazov (WCAG AA): brand modrá #4181A6 len na veľký text / UI */
+a{color:var(--brand-deep)}
+.board-role,.board-tel,.board-mail,.doc-ico,.past-meet-date,.past-meet-row{color:var(--brand-deep)}
+.meet-none{font-size:.9rem;color:#CFE4F2;line-height:1.6}
+
 [data-theme="dark"]{
   color-scheme:dark;
   --navy:#E6F0F8; --soft:#B4CCE0; --brand:#7FB4D8; --brand-deep:#9CC6E3; --brand-light:#8FB8D6;
@@ -990,14 +1032,25 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
       <h2>Najčastejšie otázky zamestnancov</h2>
       <p>Stručné odpovede podľa Zákonníka práce — výpoveď, dovolenka, príplatky, nadčasy či PN.</p>
     </div>
+    <h3 class="kz-head reveal">Navyše vďaka našej kolektívnej zmluve</h3>
+    <div class="kz-grid">
+      <div class="kz-card reveal"><span class="kz-big">až 7×</span><b>Odstupné pri dohode</b><p>Pri skončení dohodou z organizačných alebo zdravotných dôvodov 1 až 7 priemerných mesačných zárobkov. Zákon: najviac 5×.</p></div>
+      <div class="kz-card reveal"><span class="kz-big">až 3×</span><b>Odchodné do dôchodku</b><p>Nad 20 rokov vo firme 2×, nad 30 rokov 3× priemerný mesačný zárobok. Zákon: 1×.</p></div>
+      <div class="kz-card reveal"><span class="kz-big">125&nbsp;%</span><b>Príplatok za sviatok</b><p>Z priemerného zárobku za každú hodinu práce vo sviatok. Zákon: 100&nbsp;%.</p></div>
+      <div class="kz-card reveal"><span class="kz-big">35&nbsp;%</span><b>Príplatok za nadčas</b><p>Pri rizikovej práci 40&nbsp;% priemerného zárobku. Zákon: 25&nbsp;%, resp. 35&nbsp;%.</p></div>
+      <div class="kz-card reveal"><span class="kz-big">37,5&nbsp;h</span><b>Pracovný týždeň</b><p>Pracovný čas v I.D.C. Holding je 37,5 hodiny týždenne.</p></div>
+      <div class="kz-card reveal"><span class="kz-big">+&nbsp;voľno</span><b>Platené voľno navyše</b><p>Úmrtie manžela či dieťaťa spolu 4 dni, vlastná svadba +1 deň, prvý deň školy prváka 1 deň, otec pri narodení dieťaťa 1 deň.</p></div>
+    </div>
+    <p class="kz-note reveal">Zdroj: Kolektívna zmluva I.D.C. Holding, a.s. 2025 – 2027 (čl. 18, 20, 21) a Pravidlá odmeňovania 2025 – 2027. Zo sociálneho fondu sa poskytuje aj príspevok na stravovanie, sociálna výpomoc, príspevok darcom krvi, na šport a darček prvákom.</p>
+    <h3 class="kz-head reveal">Najčastejšie otázky</h3>
     <div class="faq-search reveal">
       <label for="faqSearch" class="sr-only">Hľadať v otázkach</label>
       <input id="faqSearch" type="search" placeholder="Hľadať, napr. dovolenka, nadčas, výpoveď…" autocomplete="off" maxlength="80">
     </div>
     <div class="faq-list" id="faqList">
       <details class="faq-item" id="pravo-1">
-        <summary><span>Aká je minimálna mzda v roku 2026?</span><i class="faq-chev" aria-hidden="true"></i></summary>
-        <div class="faq-a"><p>Od 1. 1. 2026 je minimálna mzda <b>915&nbsp;€ mesačne</b>, čo je <b>5,259&nbsp;€ za hodinu</b> pri 40-hodinovom týždennom pracovnom čase. Ide o sumu pre 1. stupeň náročnosti práce — pre náročnejšie pozície platia vyššie minimálne mzdové nároky.</p><div class="faq-tools"><span class="faq-src">Zákon č. 663/2007 Z. z. o minimálnej mzde</span><button class="faq-copy" type="button">Kopírovať odkaz</button></div></div>
+        <summary><span>Aká je minimálna mzda v roku 2026 a 2027?</span><i class="faq-chev" aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>Od 1. 1. 2026 je minimálna mzda <b>915&nbsp;€ mesačne</b>, čo je <b>5,259&nbsp;€ za hodinu</b> pri 40-hodinovom týždennom pracovnom čase. Ide o sumu pre 1. stupeň náročnosti práce — pre náročnejšie pozície platia vyššie minimálne mzdové nároky.</p><p>Od 1. 1. 2027 stúpa minimálna mzda na <b>972&nbsp;€ mesačne</b>, resp. <b>5,586&nbsp;€ za hodinu</b> (6. stupeň náročnosti: 1&nbsp;552&nbsp;€).</p><p>Ak je na prevádzke ustanovený kratší týždenný pracovný čas ako 40 hodín (napr. 37,5 h pri trojzmennej prevádzke), hodinová minimálna mzda sa úmerne zvyšuje.</p><div class="faq-tools"><span class="faq-src">Zákon č. 663/2007 Z. z., oznámenie č. 233/2026 Z. z.</span><button class="faq-copy" type="button">Kopírovať odkaz</button></div></div>
       </details>
       <details class="faq-item" id="pravo-2">
         <summary><span>Aká dlhá je výpovedná doba?</span><i class="faq-chev" aria-hidden="true"></i></summary>
@@ -1013,7 +1066,7 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
       </details>
       <details class="faq-item" id="pravo-5">
         <summary><span>Aké príplatky mi patria za noc, víkend a sviatok?</span><i class="faq-chev" aria-hidden="true"></i></summary>
-        <div class="faq-a"><p>Zákonné minimum v roku 2026 (počítané z hodinovej minimálnej mzdy 5,259&nbsp;€):</p><ul><li><b>nočná práca</b> (22:00–6:00): 40&nbsp;% ≈ <b>2,10&nbsp;€/h</b>, pri rizikovej práci 50&nbsp;% ≈ 2,63&nbsp;€/h,</li><li><b>sobota:</b> 50&nbsp;% ≈ <b>2,63&nbsp;€/h</b>,</li><li><b>nedeľa:</b> 100&nbsp;% ≈ <b>5,26&nbsp;€/h</b>,</li><li><b>sviatok:</b> 100&nbsp;% vášho priemerného zárobku.</li></ul><p>Kolektívna zmluva alebo dohoda môže v zákonom určených prípadoch sadzby upraviť — aktuálne sumy pre našich zamestnancov nájdete v kolektívnej zmluve.</p><div class="faq-tools"><span class="faq-src">§ 122–123 Zákonníka práce</span><button class="faq-copy" type="button">Kopírovať odkaz</button></div></div>
+        <div class="faq-a"><p>Zákonné minimum v roku 2026 (počítané z hodinovej minimálnej mzdy 5,259&nbsp;€):</p><ul><li><b>nočná práca</b> (22:00–6:00): 40&nbsp;% ≈ <b>2,10&nbsp;€/h</b>, pri rizikovej práci 50&nbsp;% ≈ 2,63&nbsp;€/h,</li><li><b>sobota:</b> 50&nbsp;% ≈ <b>2,63&nbsp;€/h</b>,</li><li><b>nedeľa:</b> 100&nbsp;% ≈ <b>5,26&nbsp;€/h</b>,</li><li><b>sviatok:</b> 100&nbsp;% vášho priemerného zárobku.</li></ul><p>Od 1. 1. 2027 (hodinová minimálna mzda 5,586&nbsp;€ pri 40 h týždenne): noc <b>2,23&nbsp;€/h</b> (riziková práca 2,79&nbsp;€/h), sobota <b>2,79&nbsp;€/h</b>, nedeľa <b>5,59&nbsp;€/h</b>. Pri kratšom ustanovenom pracovnom čase sú sumy vyššie. Príplatky sa sčítavajú.</p><p>Kolektívna zmluva môže dávať viac — u nás napr. 125&nbsp;% za sviatok. Svoju sumu si vypočítajte v <a href="#kalkulacka">kalkulačke príplatkov</a>.</p><div class="faq-tools"><span class="faq-src">§ 122–123 Zákonníka práce, oznámenie č. 233/2026 Z. z.</span><button class="faq-copy" type="button">Kopírovať odkaz</button></div></div>
       </details>
       <details class="faq-item" id="pravo-6">
         <summary><span>Koľko nadčasov mi môžu nariadiť a čo za ne dostanem?</span><i class="faq-chev" aria-hidden="true"></i></summary>
@@ -1035,9 +1088,56 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
         <summary><span>Čo robí odborová organizácia, keď mi zamestnávateľ dáva výpoveď?</span><i class="faq-chev" aria-hidden="true"></i></summary>
         <div class="faq-a"><p>Zamestnávateľ musí výpoveď alebo okamžité skončenie pracovného pomeru <b>vopred prerokovať so zástupcami zamestnancov</b> — u nás s výborom ZO OZ KOVO Sedita. Inak je výpoveď <b>neplatná</b>. Výbor sa musí vyjadriť do 7 pracovných dní (pri okamžitom skončení do 2). Ak sa niečo také týka vás, ozvite sa nám čo najskôr.</p><div class="faq-tools"><span class="faq-src">§ 74 Zákonníka práce</span><button class="faq-copy" type="button">Kopírovať odkaz</button></div></div>
       </details>
+      <details class="faq-item" id="pravo-11">
+        <summary><span>Mám nárok na stravovanie a aká musí byť hodnota stravnej karty?</span><i class="faq-chev" aria-hidden="true"></i></summary>
+        <div class="faq-a"><p>Zamestnávateľ musí zabezpečiť stravovanie v každej zmene, ktorá trvá <b>viac ako 4 hodiny</b>. Prispieva najmenej <b>55&nbsp;% ceny jedla</b>, najviac však 55&nbsp;% stravného pre pracovnú cestu 5–12 hodín.</p><p>Od 1. 12. 2026 je toto stravné <b>9,80&nbsp;€</b>, preto musí mať stravovacia poukážka (aj elektronická karta) hodnotu najmenej <b>7,35&nbsp;€</b> a príspevok zamestnávateľa je najviac 5,39&nbsp;€ na jedlo. K tomu sa pridáva príspevok zo sociálneho fondu podľa kolektívnej zmluvy.</p><div class="faq-tools"><span class="faq-src">§ 152 Zákonníka práce, oznámenie č. 255/2026 Z. z.</span><button class="faq-copy" type="button">Kopírovať odkaz</button></div></div>
+      </details>
       <p class="faq-empty" id="faqEmpty" hidden>Nenašli sme odpoveď. <a href="#podnety">Opýtajte sa výboru</a> — radi poradíme.</p>
     </div>
-    <p class="faq-note">Informácie sú všeobecné a zodpovedajú stavu k 1. 1. 2026. Kolektívna zmluva môže priznávať viac. Pri konkrétnom probléme <a href="#vybor">kontaktujte výbor</a> alebo <a href="#podnety">pošlite podnet</a>.</p>
+    <p class="faq-note">Informácie sú všeobecné a zodpovedajú stavu k novembru 2026 vrátane známych zmien od 1. 12. 2026 a 1. 1. 2027. Kolektívna zmluva môže priznávať viac. Pri konkrétnom probléme <a href="#vybor">kontaktujte výbor</a> alebo <a href="#podnety">pošlite podnet</a>.</p>
+  </div>
+</section>
+
+<!-- ============ KALKULAČKA PRÍPLATKOV ============ -->
+<section id="kalkulacka">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Kalkulačka</span>
+      <div class="hairline center"></div>
+      <h2>Koľko mi patrí za noci, víkendy a sviatky?</h2>
+      <p>Zadajte hodiny za mesiac. Kalkulačka použije vždy vyššiu sumu — podľa zákona alebo podľa kolektívnej zmluvy.</p>
+    </div>
+    <div class="calc reveal">
+      <form id="calcForm" class="form-card calc-form" novalidate>
+        <div class="calc-grid">
+          <div class="field"><label for="kYear">Rok</label>
+            <select id="kYear"><option value="2026">2026</option><option value="2027">2027</option></select></div>
+          <div class="field"><label for="kWeek">Pracovný čas týždenne</label>
+            <select id="kWeek"><option value="37.5" selected>37,5 h (KZ)</option><option value="38.75">38,75 h</option><option value="40">40 h</option></select></div>
+        </div>
+        <div class="field"><label for="kAvg">Priemerný hodinový zárobok (€)</label>
+          <input id="kAvg" type="number" inputmode="decimal" min="0" step="0.01" placeholder="napr. 8,50 — z výplatnej pásky"></div>
+        <div class="calc-grid">
+          <div class="field"><label for="kNoc">Nočné hodiny</label><input id="kNoc" type="number" inputmode="decimal" min="0" step="0.5" value="0"></div>
+          <div class="field"><label for="kSob">Sobota (h)</label><input id="kSob" type="number" inputmode="decimal" min="0" step="0.5" value="0"></div>
+          <div class="field"><label for="kNed">Nedeľa (h)</label><input id="kNed" type="number" inputmode="decimal" min="0" step="0.5" value="0"></div>
+          <div class="field"><label for="kSv">Sviatok (h)</label><input id="kSv" type="number" inputmode="decimal" min="0" step="0.5" value="0"></div>
+          <div class="field"><label for="kNad">Nadčas (h)</label><input id="kNad" type="number" inputmode="decimal" min="0" step="0.5" value="0"></div>
+        </div>
+        <label class="calc-check"><input id="kRisk" type="checkbox"> Vykonávam rizikovú prácu</label>
+      </form>
+      <div class="form-card calc-out" aria-live="polite">
+        <table class="calc-table">
+          <caption class="sr-only">Výpočet príplatkov za mesiac</caption>
+          <thead><tr><th scope="col">Príplatok</th><th scope="col">Sadzba</th><th scope="col">Hodiny</th><th scope="col">Suma</th></tr></thead>
+          <tbody id="calcBody"></tbody>
+        </table>
+        <div class="calc-total"><span>Príplatky spolu (brutto)</span><b id="calcTotal">0,00 €</b></div>
+        <p class="calc-warn" id="calcWarn" hidden>Pre sviatok a nadčas doplňte priemerný hodinový zárobok.</p>
+        <p class="calc-meta" id="calcMinH"></p>
+        <p class="calc-meta">Orientačný výpočet podľa § 121–123 Zákonníka práce a Pravidiel odmeňovania I.D.C. 2025 – 2027. Príplatky sa pripočítavajú k mzde za odpracovaný čas. Ak sa výplatná páska líši, <a href="#podnety">ozvite sa nám</a>.</p>
+      </div>
+    </div>
   </div>
 </section>
 
