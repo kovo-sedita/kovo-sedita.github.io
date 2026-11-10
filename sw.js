@@ -1,6 +1,6 @@
 /* Service worker ZO OZ KOVO Sedita — offline režim a rýchle opakované načítanie.
    Pri zmene zoznamu PRECACHE alebo stratégie zvýš VERZIA, staré cache sa zmažú. */
-const VERZIA = "kovo-v3";
+const VERZIA = "kovo-v4";
 const STATIC = VERZIA + "-static";
 const DATA = VERZIA + "-data";
 
@@ -54,12 +54,18 @@ self.addEventListener("fetch", e => {
 
 async function networkFirst(req, cacheName, fallbackUrl){
   const cache = await caches.open(cacheName);
+  // Stránku ukladať pod adresou bez ?parametrov (jedna kópia, nie jedna na každý odkaz)
+  let key = req;
+  if (req.mode === "navigate") { const u = new URL(req.url); u.search = ""; u.hash = ""; key = u.href; }
   try{
     const res = await fetch(req);
-    if (res.ok) cache.put(req, res.clone());
+    // Dáta z API ukladať len ako JSON; pri stránke len riadnu odpoveď z vlastnej domény
+    const typ = res.headers.get("content-type") || "";
+    const ok = cacheName === DATA ? typ.includes("json") : (res.type === "basic" && !res.redirected);
+    if (res.ok && ok) cache.put(key, res.clone());
     return res;
   }catch(err){
-    const hit = await cache.match(req, {ignoreSearch: req.mode === "navigate"}) || (fallbackUrl && await caches.match(fallbackUrl));
+    const hit = await cache.match(key) || (fallbackUrl && await caches.match(fallbackUrl));
     if (hit) return hit;
     throw err;
   }
@@ -67,7 +73,13 @@ async function networkFirst(req, cacheName, fallbackUrl){
 
 async function staleWhileRevalidate(req){
   const cache = await caches.open(STATIC);
-  const hit = await cache.match(req);
-  const update = fetch(req).then(res => { if (res.ok) cache.put(req, res.clone()); return res; }).catch(() => hit);
+  // Kľúčom je adresa bez ?parametrov — inak by sa cache dala zaplniť náhodnými ?x=1, ?x=2…
+  const key = new URL(req.url); key.search = "";
+  const hit = await cache.match(key.href);
+  const update = fetch(req).then(res => {
+    // Ukladať len riadne odpovede z vlastnej domény (nie presmerovania ani chybové stránky)
+    if (res.ok && res.type === "basic" && !res.redirected) cache.put(key.href, res.clone());
+    return res;
+  }).catch(() => hit);
   return hit || update;
 }

@@ -14,7 +14,29 @@
 ===================================================================== */
 const API_BASE = "https://script.google.com/macros/s/AKfycby3BGtH6l1hClf93U1OR7upCt_hKJpmm5YA0MXIeOmykf3tsvWqP5_15nzMXLYJj_MWxg/exec";
 
-/* ---------- DEMO DÁTA (nahradia sa dátami z API) ---------- */
+/* ---------- Ochrana proti vloženiu do cudzej stránky (clickjacking) ----------
+   GitHub Pages nevie poslať hlavičku X-Frame-Options, preto kontrola v skripte:
+   v cudzom ráme sa obsah skryje a ponúkne sa len odkaz na skutočný web. */
+(function(){
+  if(window.top === window.self) return;
+  let same = false;
+  try{ same = window.top.location.origin === window.location.origin; }catch(_){}
+  if(same) return;
+  document.documentElement.setAttribute("data-framed","");
+  const a = document.createElement("a");
+  a.href = location.origin + location.pathname; a.target = "_top"; a.rel = "noopener";
+  a.className = "framed-note"; a.textContent = "Otvoriť web ZO OZ KOVO Sedita";
+  document.body.replaceChildren(a);
+  throw new Error("[KOVO] Stránka je vložená v cudzom ráme — obsah bol skrytý.");
+})();
+
+/* ---------- UKÁŽKOVÉ DÁTA — len pri vývoji (file:// alebo localhost) ----------
+   Na živom webe sa pri výpadku API NEZOBRAZUJÚ: vymyslené aktuality a čísla by vyzerali
+   ako overené informácie. Namiesto nich sa ukáže hlásenie s možnosťou skúsiť znova. */
+const DEV = location.protocol === "file:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+const DEMO_OK = DEV && !/[?&]nodemo\b/.test(location.search);
+// Kontakt na predsedu je verejný a stály — zobrazí sa aj keď API nie je dostupné
+const STALY_VYBOR = [{name:"Rastislav Mišovič",role:"Predseda ZO",phone:"+421 911 322 559",email:"kovosedita@outlook.sk"}];
 const DEMO = {
   members: { count: 86, history: [
     {m:"Júl",c:48},{m:"Aug",c:52},{m:"Sep",c:55},{m:"Okt",c:59},{m:"Nov",c:63},{m:"Dec",c:66},
@@ -50,15 +72,24 @@ const DEMO = {
       {date:"20. 1. 2026", title:"Zápisnica — mimoriadna schôdza", minutesUrl:"#"}
     ]
   },
-  board: [
-    {name:"Rastislav Mišovič",role:"Predseda ZO",phone:"+421 911 322 559",email:"kovosedita@outlook.sk"}
-  ]
+  board: STALY_VYBOR
 };
 
 /* ---------- Bezpečné vkladanie dát do HTML ---------- */
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-// Povoliť len http(s), mailto, tel a relatívne odkazy — blokuje javascript: URL
-const safeUrl = u => { const s = String(u ?? "").trim(); return /^(https?:|mailto:|tel:|#|\/)/i.test(s) ? esc(s) : ""; };
+// Povoliť len http(s), mailto, tel, #kotvu a cestu v rámci webu — blokuje javascript:, data:
+// aj odkazy typu //cudzi.web a /\cudzi.web, ktoré prehliadač číta ako inú doménu
+const safeUrl = u => {
+  const s = String(u ?? "").replace(/[\u0000-\u001f\u007f]/g,"").trim();
+  return /^(https?:\/\/|mailto:|tel:|#|\/(?![\/\\]))/i.test(s) ? esc(s) : "";
+};
+// Zoznam z API: len pole, len objekty, najviac `max` položiek
+const asList = (v, max) => Array.isArray(v) ? v.filter(x => x && typeof x === "object").slice(0, max) : null;
+// Cieľ #kotvy v adrese; poškodené kódovanie (#%E0%A4%A) nesmie zhodiť skript
+function hashTarget(){
+  if(location.hash.length < 2) return null;
+  try{ return document.getElementById(decodeURIComponent(location.hash.slice(1))); }catch(_){ return null; }
+}
 
 /* ---------- Pomocné funkcie pre animácie ---------- */
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -75,27 +106,51 @@ function transition(update){
   else update();
 }
 
-/* ---------- API vrstva (s fallbackom na DEMO) ---------- */
+/* ---------- API vrstva ---------- */
+// fetch s časovým limitom — bez neho by pri zaseknutom serveri stránka čakala donekonečna
+async function fetchT(url, opts, ms){
+  const ac = new AbortController(), t = setTimeout(()=>ac.abort(), ms);
+  try{ return await fetch(url, {...opts, signal: ac.signal}); } finally{ clearTimeout(t); }
+}
+// Vráti dáta, alebo null keď sa ich nepodarilo získať (pri vývoji ukážkové dáta)
 async function api(action){
-  if(!API_BASE) return DEMO[action] ?? null;
+  const demo = DEMO_OK ? (DEMO[action] ?? null) : null;
+  if(!API_BASE) return demo;
   try{
     // credentials:'omit' zabraňuje posielaniu cookies → nutné pre CORS pri Apps Script redirecte
-    const r = await fetch(`${API_BASE}?action=${encodeURIComponent(action)}`,{credentials:"omit",mode:"cors"});
+    const r = await fetchT(`${API_BASE}?action=${encodeURIComponent(action)}`,{credentials:"omit",mode:"cors",referrerPolicy:"no-referrer"}, 12000);
     if(!r.ok) throw new Error("HTTP " + r.status);
     return await r.json();
-  }catch(e){ console.warn("[KOVO] API nedostupné ("+action+")", e.message||e); return DEMO[action] ?? null; }
+  }catch(e){ console.warn("[KOVO] API nedostupné ("+action+")", e.message||e); return demo; }
 }
+// Hlásenie v sekcii, keď sa dáta nepodarilo načítať
+function loadError(el, what){
+  el.removeAttribute("aria-busy");
+  el.innerHTML = `<div class="load-err" role="status"><p>${esc(what)} sa nepodarilo načítať.</p>
+    <button class="btn btn-sm ghost" type="button" data-retry>Skúsiť znova</button></div>`;
+}
+document.addEventListener("click", e=>{
+  const b = e.target.closest("[data-retry]");
+  if(b){ b.disabled = true; b.textContent = "Načítavam…"; init(); }
+});
 
 /* ---------- Počet členov: count-up + SVG graf ---------- */
 async function renderMembers(){
   const d = await api("members");
   const el = document.getElementById("memberCount");
-  if(!d || typeof d.count !== "number" || !Array.isArray(d.history) || d.history.length < 2){
-    el.textContent = d && d.count != null ? d.count : "—";
+  const band = document.querySelector(".statband");
+  const count = d ? Number(d.count) : NaN;
+  // Bez platného počtu sa pás so štatistikou vôbec neukáže (žiadna nula ani pomlčka)
+  if(!Number.isFinite(count) || count < 0){ if(band) band.hidden = true; return; }
+  if(band) band.hidden = false;
+  const hist = asList(d.history, 60);
+  if(!hist || hist.length < 2){
+    el.textContent = Math.round(count);
+    document.querySelector(".stat-meta").hidden = true; document.querySelector(".stat-chart").hidden = true;
     return;
   }
   // Počítadlo sa spustí až keď je pás so štatistikou v zábere
-  const target = d.count;
+  const target = Math.round(count);
   whenVisible(el, ()=>{
     if(reducedMotion){ el.textContent = target; return; }
     const dur = 1600, t0 = performance.now();
@@ -106,8 +161,8 @@ async function renderMembers(){
     })(t0);
   });
   // Čísla z API vynútiť ako čísla — do SVG sa nesmie dostať text
-  const h = d.history.map(p=>({m:String(p.m), c:Number(p.c)||0})), first = h[0].c, last = h[h.length-1].c;
-  document.getElementById("newMembers").textContent = "+" + (last - first);
+  const h = hist.map(p=>({m:String(p.m ?? "").slice(0,12), c:Number(p.c)||0})), first = h[0].c, last = h[h.length-1].c;
+  document.getElementById("newMembers").textContent = (last >= first ? "+" : "") + (last - first);
   document.getElementById("growthPct").textContent = first > 0 ? Math.round((last-first)/first*100) + " %" : "—";
 
   const svg = document.getElementById("memberChart");
@@ -165,7 +220,8 @@ function renderNews(cat="all"){
   const grid = document.getElementById("newsGrid");
   const items = newsData.filter(n => n && (cat==="all" || n.cat===cat));
   if(!items.length){
-    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Momentálne žiadne aktuality v tejto kategórii.</p>`;
+    grid.removeAttribute("aria-busy");
+    grid.innerHTML = `<p class="muted empty">${newsData.length ? "V tejto kategórii zatiaľ nie sú žiadne aktuality." : "Aktuality pripravujeme."}</p>`;
     return;
   }
   grid.removeAttribute("aria-busy");
@@ -179,14 +235,16 @@ function renderNews(cat="all"){
       <h3 class="news-title">${esc(n.title||"(bez názvu)")}</h3>
       <p class="news-body">${esc(n.text)}</p>
       ${n.src ? `<div class="news-src"><span class="dot"></span>${esc(n.src)}</div>` : ""}
-      ${safeUrl(n.url) && n.url !== "#" ? `<a class="news-link" href="${safeUrl(n.url)}" target="_blank" rel="noopener">Viac info ↗</a>` : ""}
+      ${safeUrl(n.url) && n.url !== "#" ? `<a class="news-link" href="${safeUrl(n.url)}" target="_blank" rel="noopener noreferrer">Viac info ↗</a>` : ""}
     </article>`).join("");
 }
 
 document.querySelectorAll(".chip[data-cat]").forEach(chip=>{
   chip.addEventListener("click",()=>{
-    document.querySelectorAll(".chip[data-cat]").forEach(c=>c.classList.remove("active"));
-    chip.classList.add("active");
+    document.querySelectorAll(".chip[data-cat]").forEach(c=>{
+      c.classList.toggle("active", c === chip);
+      c.setAttribute("aria-pressed", c === chip ? "true" : "false");
+    });
     transition(()=>renderNews(chip.dataset.cat));
   });
 });
@@ -220,7 +278,8 @@ function renderDocs(tab=docTab){
   const list = document.getElementById("docGrid");
   const items = docsData.filter(d => d && (tab==="all" || d.cat===tab));
   if(!items.length){
-    list.innerHTML = `<p style="padding:32px 0;text-align:center;opacity:.6;font-size:.9rem">Momentálne žiadne dokumenty v tejto kategórii.</p>`;
+    list.removeAttribute("aria-busy");
+    list.innerHTML = `<p class="muted empty">${docsData.length ? "V tejto kategórii zatiaľ nie sú žiadne dokumenty." : "Dokumenty pripravujeme."}</p>`;
     return;
   }
   list.removeAttribute("aria-busy");
@@ -231,7 +290,7 @@ function renderDocs(tab=docTab){
         <b>${esc(d.name||"Dokument")}</b>
         <span>${esc(d.desc)}</span>
       </div>
-      ${safeUrl(d.url) ? `<a class="btn btn-sm" href="${safeUrl(d.url)}" target="_blank" rel="noopener" aria-label="Stiahnuť ${esc(d.name||'dokument')}">Stiahnuť</a>` : ""}
+      ${safeUrl(d.url) ? `<a class="btn btn-sm" href="${safeUrl(d.url)}" target="_blank" rel="noopener noreferrer" aria-label="Stiahnuť ${esc(d.name||'dokument')}">Stiahnuť</a>` : ""}
     </div>`).join("");
   document.querySelectorAll("#dokumenty .reveal").forEach(el=>io.observe(el));
 }
@@ -303,6 +362,9 @@ document.addEventListener("click", e=>{
 });
 
 /* ---------- Schôdze ---------- */
+const IC_DATE = '<svg class="mi" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+const IC_TIME = '<svg class="mi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
+const IC_PLACE = '<svg class="mi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 function renderMeetings(data){
   const nextEl = document.getElementById("meetNext");
   const pastEl = document.getElementById("meetPast");
@@ -313,9 +375,10 @@ function renderMeetings(data){
   let list = Array.isArray(data) ? data
     : (data && typeof data === "object") ? [data.next, ...(Array.isArray(data.past) ? data.past : [])]
     : [];
+  list = list.filter(m => m && typeof m === "object").slice(0, 100);
   // Agenda môže prísť ako pole alebo ako text s položkami na riadkoch
   list = list.filter(m => m && m.date).map(m => ({...m,
-    agenda: Array.isArray(m.agenda) ? m.agenda
+    agenda: Array.isArray(m.agenda) ? m.agenda.slice(0,30)
       : typeof m.agenda === "string" ? m.agenda.split("\n").map(s=>s.replace(/^\s*\d+[.)]\s*/,"").trim()).filter(Boolean)
       : []}));
 
@@ -344,7 +407,8 @@ function renderMeetings(data){
   }
 
   if(!upcoming.length){
-    nextEl.innerHTML = `<p style="opacity:.6;font-size:.9rem">Momentálne nie sú naplánované žiadne schôdze.</p>`;
+    nextEl.innerHTML = `<div class="meet-empty">${IC_DATE}<h3>Termín ďalšej schôdze pripravujeme</h3>
+      <p>Hneď ako bude známy, nájdete ho tu aj s programom a možnosťou pridať si ho do kalendára.</p></div>`;
   } else {
     const m = upcoming[0];
     nextNextMeeting = m; nextMeetingDate = parseDate(m.date);
@@ -353,8 +417,9 @@ function renderMeetings(data){
         <div class="meet-badge">Najbližšia schôdza</div>
         <h3 class="meet-title">${esc(m.title||"Schôdza ZO OZ KOVO")}</h3>
         <div class="meet-meta">
-          <span>📅 ${fmtDate(m.date)}${m.time?" · 🕐 "+esc(m.time):""}</span>
-          ${m.place?`<span>📍 ${esc(m.place)}</span>`:""}
+          <span>${IC_DATE}${fmtDate(m.date)}</span>
+          ${m.time?`<span>${IC_TIME}${esc(m.time)}</span>`:""}
+          ${m.place?`<span>${IC_PLACE}${esc(m.place)}</span>`:""}
         </div>
         ${m.agenda.length?`<ul class="meet-agenda">${m.agenda.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>`:""}
         ${m.note?`<p class="meet-note">${esc(m.note)}</p>`:""}
@@ -369,18 +434,18 @@ function renderMeetings(data){
       ${upcoming.slice(1).map(u=>`
       <div class="meet-card reveal">
         <h3 class="meet-title">${esc(u.title||"Schôdza ZO OZ KOVO")}</h3>
-        <div class="meet-meta"><span>📅 ${fmtDate(u.date)}${u.time?" · 🕐 "+esc(u.time):""}</span>${u.place?`<span>📍 ${esc(u.place)}</span>`:""}</div>
+        <div class="meet-meta"><span>${IC_DATE}${fmtDate(u.date)}</span>${u.time?`<span>${IC_TIME}${esc(u.time)}</span>`:""}${u.place?`<span>${IC_PLACE}${esc(u.place)}</span>`:""}</div>
       </div>`).join("")}`;
   }
 
   if(!past.length){
-    pastEl.innerHTML = `<p style="opacity:.6;font-size:.9rem">Zatiaľ žiadne záznamy z minulých schôdzí.</p>`;
+    pastEl.innerHTML = `<h3>Minulé schôdze</h3><p class="muted">Zatiaľ žiadne záznamy z minulých schôdzí.</p>`;
   } else {
-    pastEl.innerHTML = `<div class="past-meets-list">${past.map(m=>`
+    pastEl.innerHTML = `<h3>Minulé schôdze a zápisnice</h3><div class="past-meets-list">${past.slice(0,8).map(m=>`
       <div class="past-meet-row reveal">
         <span class="past-meet-date">${fmtDate(m.date)}</span>
         <span class="past-meet-title">${esc(m.title||"Schôdza ZO OZ KOVO")}</span>
-        ${safeUrl(m.minutesUrl)?`<a class="btn btn-sm" href="${safeUrl(m.minutesUrl)}" target="_blank" rel="noopener">Zápisnica</a>`:""}
+        ${safeUrl(m.minutesUrl)?`<a class="btn btn-sm" href="${safeUrl(m.minutesUrl)}" target="_blank" rel="noopener noreferrer">Zápisnica</a>`:""}
       </div>`).join("")}</div>`;
   }
 
@@ -392,19 +457,20 @@ function renderBoard(data){
   const grid = document.getElementById("boardGrid");
   if(!grid) return;
   if(!data||!data.length){
-    grid.innerHTML = `<p style="text-align:center;padding:40px 0;opacity:.6;font-size:.9rem">Informácie o výbore sa načítavajú…</p>`;
+    grid.removeAttribute("aria-busy");
+    grid.innerHTML = `<p class="muted empty">Kontakty na výbor pripravujeme.</p>`;
     return;
   }
   grid.removeAttribute("aria-busy");
   grid.innerHTML = data.map(m=>`
     <div class="board-card reveal" role="article">
-      <div class="avatar" aria-hidden="true">${esc((m.name||"?")[0].toUpperCase())}</div>
+      <div class="avatar" aria-hidden="true">${esc((String(m.name||"?").trim()[0]||"?").toUpperCase())}</div>
       <div class="board-line" aria-hidden="true"></div>
       <div class="board-info">
         <strong>${esc(m.name)}</strong>
         <span class="board-role">${esc(m.role)}</span>
         ${m.phone?`<a class="board-tel" href="tel:${esc(String(m.phone).replace(/[^\d+]/g,""))}" aria-label="Zavolať ${esc(m.name)}">${esc(m.phone)}</a>`:""}
-        ${m.email?`<a class="board-mail" href="mailto:${esc(m.email)}">${esc(m.email)}</a>`:""}
+        ${/^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(m.email||"")?`<a class="board-mail" href="mailto:${esc(m.email)}">${esc(m.email)}</a>`:""}
       </div>
     </div>`).join("");
   document.querySelectorAll("#vybor .reveal").forEach(el=>io.observe(el));
@@ -469,10 +535,18 @@ function renderBoard(data){
     return Array.from(r, x => abc[x % abc.length]).join("");
   }
 
+  // Odstup medzi príspevkami z jedného zariadenia (hrubá brzda proti zahlteniu;
+  // skutočný limit musí strážiť Apps Script — pozri docs/apps-script-dotaznik.md)
+  const LAST_KEY = "kovo-dotaznik-odoslane", ODSTUP_MS = 30000;
+  let sending = false;
   form.addEventListener("submit", async e=>{
     e.preventDefault();
+    if(sending) return;
     const honey = form.querySelector("#chpot");
     if(honey && honey.value){ return; }
+    let last = 0; try{ last = Number(sessionStorage.getItem(LAST_KEY)) || 0; }catch(_){}
+    const wait = Math.ceil((last + ODSTUP_MS - Date.now()) / 1000);
+    if(wait > 0){ showErr(formErr, `Ďalší príspevok môžete odoslať o ${wait} s.`); return; }
 
     const btn = form.querySelector("button[type=submit]");
     const orig = btn ? btn.textContent : "";
@@ -483,6 +557,7 @@ function renderBoard(data){
       msgField.classList.add("invalid"); msg.focus();
       return;
     }
+    sending = true;
     if(btn){ btn.disabled = true; btn.textContent = "Odosielam…"; }
     const kod = refCode(), typ = TYP[val("typ")] || "", nal = NAL[val("naliehavost")] || "";
     // Polia name/email/category/message/anonymous zostávajú kvôli súčasnému Apps Scriptu;
@@ -502,29 +577,33 @@ function renderBoard(data){
       website  : honey ? honey.value : ""
     };
     try{
-      const r = await fetch(API_BASE + "?action=complaint", {
+      const r = await fetchT(API_BASE + "?action=complaint", {
         method : "POST",
         credentials: "omit",
         mode   : "cors",
+        referrerPolicy: "no-referrer",
         // text/plain = "simple request" bez CORS preflightu; Apps Script na OPTIONS neodpovedá
         // a s application/json by prehliadač požiadavku zablokoval. doPost číta e.postData.contents.
         headers: {"Content-Type":"text/plain;charset=utf-8"},
         body   : JSON.stringify(payload)
-      });
+      }, 20000);
       const res = await r.json();
-      if(res.ok || res.status==="ok"){
-        try{ sessionStorage.removeItem(DRAFT_KEY); }catch(_){}
+      if(res && (res.ok === true || res.status === "ok")){
+        try{ sessionStorage.removeItem(DRAFT_KEY); sessionStorage.setItem(LAST_KEY, String(Date.now())); }catch(_){}
         form.innerHTML = `<div class="form-done" role="status" tabindex="-1">
           <svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><path d="M26 41l10 10 18-20"/></svg>
           <h4>Ďakujeme, príspevok bol anonymne odoslaný</h4>
           <p>Váš kód príspevku:</p>
           <span class="ref-code">${esc(kod)}</span>
-          <p style="margin-top:10px;font-size:.8rem">Kód si môžete poznačiť. Ak sa budete chcieť opýtať na stav riešenia, uveďte len tento kód — nie svoje meno.</p></div>`;
+          <p style="margin-top:10px;font-size:.8rem">Kód si môžete poznačiť. Ak sa budete chcieť opýtať na stav riešenia, uveďte len tento kód — nie svoje meno.</p>
+          <button class="btn btn-sm ghost" type="button" id="dotaznikZnova">Napísať ďalší príspevok</button></div>`;
         form.querySelector(".form-done").focus();
+        form.querySelector("#dotaznikZnova").addEventListener("click", ()=>{ location.hash = "dotaznik"; location.reload(); });
       } else {
         throw new Error(res.message||"Chyba servera");
       }
     }catch(err){
+      sending = false;
       if(btn){ btn.disabled = false; btn.textContent = orig; }
       showErr(formErr, "Príspevok sa nepodarilo odoslať. Text zostal vo formulári — skúste to prosím o chvíľu znova.");
     }
@@ -575,12 +654,10 @@ function renderBoard(data){
     const open = nav.classList.toggle("open");
     burger.setAttribute("aria-expanded", open ? "true" : "false");
   });
-  nav.querySelectorAll("a").forEach(a=>{
-    a.addEventListener("click",()=>{
-      nav.classList.remove("open");
-      burger.setAttribute("aria-expanded","false");
-    });
-  });
+  const close = () => { nav.classList.remove("open"); burger.setAttribute("aria-expanded","false"); };
+  nav.querySelectorAll("a").forEach(a=>a.addEventListener("click", close));
+  document.addEventListener("keydown", e=>{ if(e.key === "Escape" && nav.classList.contains("open")){ close(); burger.focus(); } });
+  document.addEventListener("click", e=>{ if(nav.classList.contains("open") && !e.target.closest("nav")) close(); });
 })();
 
 /* ---------- Scroll reveal ---------- */
@@ -664,35 +741,52 @@ function showNow(el){
   if(r){ r.style.transition = "none"; r.classList.add("in"); io.unobserve(r); void r.offsetHeight; r.style.transition = ""; }
 }
 (function(){
-  const t = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  const t = hashTarget();
   if(t && !t.matches("details")){ showNow(t); t.scrollIntoView({behavior:"instant"}); }
 })();
 let userScrolled = false;
 ["wheel","touchmove","keydown","pointerdown"].forEach(ev=>addEventListener(ev, ()=>{ userScrolled = true; }, {once:true, passive:true}));
 
 /* ---------- Init ---------- */
+let loading = false;
 async function init(){
-  renderMembers();
+  if(loading) return;
+  loading = true;
+  renderMembers().catch(e=>console.warn("[KOVO] Štatistiku členov sa nepodarilo vykresliť", e));
   const [meetData, newsRaw, docsRaw, boardRaw] = await Promise.all([
     api("meetings"),
     api("news"),
     api("docs"),
     api("board")
   ]);
-  // API môže pri chybe vrátiť objekt (napr. {error:"…"}) namiesto zoznamu
-  const list = (v, fallback) => Array.isArray(v) ? v : fallback;
-  newsData = list(newsRaw, DEMO.news);
-  renderNews("all");
-  docsData = list(docsRaw, DEMO.docs);
-  renderDocs();
-  renderMeetings(meetData && typeof meetData === "object" ? meetData : DEMO.meetings);
-  renderBoard(list(boardRaw, DEMO.board));
+  // Každá sekcia zvlášť: chyba v jednej nesmie zastaviť ostatné.
+  // API môže pri chybe vrátiť objekt (napr. {error:"…"}) namiesto zoznamu → asList vráti null.
+  const part = (name, fn) => { try{ fn(); }catch(e){ console.warn("[KOVO] Sekciu „"+name+"“ sa nepodarilo vykresliť", e); } };
+  part("aktuality", ()=>{
+    const v = asList(newsRaw, 60);
+    if(v){ newsData = v; renderNews(document.querySelector(".chip[data-cat].active")?.dataset.cat || "all"); }
+    else loadError(document.getElementById("newsGrid"), "Aktuality");
+  });
+  part("dokumenty", ()=>{
+    const v = asList(docsRaw, 200);
+    if(v){ docsData = v; renderDocs(); }
+    else loadError(document.getElementById("docGrid"), "Dokumenty");
+  });
+  part("schôdze", ()=>{
+    if(meetData && typeof meetData === "object" && !("error" in meetData)) renderMeetings(meetData);
+    else{
+      document.getElementById("meetPast").innerHTML = "";
+      loadError(document.getElementById("meetNext"), "Termíny schôdzí");
+    }
+  });
+  part("výbor", ()=>renderBoard(asList(boardRaw, 30) || STALY_VYBOR));
+  loading = false;
   dataReady = true;
-  if(scrollDocsWhenReady) document.getElementById("dokumenty").scrollIntoView({behavior:"smooth"});
+  if(scrollDocsWhenReady){ scrollDocsWhenReady = false; document.getElementById("dokumenty").scrollIntoView({behavior:"smooth"}); }
   // Otvorený odkaz s #kotvou (napr. QR kód → #dotaznik): obsah nad cieľom sa po načítaní dát
   // zmenil, takže znova doskočiť — ale len ak sa používateľ medzitým sám neposúval
-  else if(!userScrolled && location.hash.length > 1){
-    const t = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  else if(!userScrolled){
+    const t = hashTarget();
     if(t && !t.matches("details")){ showNow(t); t.scrollIntoView({behavior:"instant"}); }
   }
 }
@@ -793,3 +887,6 @@ init();
     setTimeout(()=>{ b.textContent = "Kopírovať odkaz"; }, 2000);
   });
 })();
+
+/* ---------- Rok v pätičke ---------- */
+(function(){ const y = document.getElementById("rok"); if(y) y.textContent = new Date().getFullYear(); })();
