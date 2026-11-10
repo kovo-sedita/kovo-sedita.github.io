@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <!-- Bezpečnosť: povolené zdroje obsahu (CSP). Pri úprave inline skriptu v <head> treba prepočítať jeho sha256. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-uTuRuhpO6KLfq22sGxPHoKtFNWkD5wG+dKgSxVDFO0M='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-uTuRuhpO6KLfq22sGxPHoKtFNWkD5wG+dKgSxVDFO0M='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; frame-src 'none'; script-src-attr 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ZO OZ KOVO Sedita — Odborová organizácia</title>
@@ -204,14 +204,14 @@ nav{position:sticky;top:0;z-index:50;background:rgba(175,213,234,.82);backdrop-f
 .burger{display:none;margin-left:auto;background:none;border:none;font-size:1.6rem;color:var(--navy);cursor:pointer}
 
 /* ===== Hero ===== */
-.hero{padding:84px 0 70px}
+.hero{padding:clamp(40px,7vh,84px) 0 clamp(40px,6vh,70px)}
 .hero-grid{display:flex;justify-content:center;align-items:center}
 /* Hero tagline — nová typografická hierarchia */
 .hero-tagline{display:inline-flex;flex-direction:column;align-items:center;text-align:center}
-.ht-main{font-family:'Rebok',sans-serif;font-size:clamp(5.5rem,16vw,13rem);height:1.9em;font-weight:400;display:flex;align-items:center;justify-content:center;gap:.02em;overflow:visible;}
+.ht-main{font-family:'Rebok',sans-serif;font-size:clamp(5.5rem,min(16vw,17.5vh),13rem);height:1.9em;font-weight:400;display:flex;align-items:center;justify-content:center;gap:.02em;overflow:visible;}
 .ht-text{font-family:'Rebok',sans-serif;color:var(--navy);display:inline-block;animation:htColorShift 6s ease-in-out 1.2s 1 both;}
 .ht-logo{height:1.7em;width:auto;display:inline-block;vertical-align:middle;margin:0 .02em;filter:drop-shadow(0 10px 28px rgba(27,57,91,.42));animation:cookiePop .9s cubic-bezier(.34,1.56,.64,1) .2s both,float 7s ease-in-out 1.1s infinite;transform-origin:center center;}
-.ht-sub{font-family:'Rebok',sans-serif;font-style:italic;font-size:clamp(2.2rem,6.5vw,5.2rem);color:var(--gold);display:block;text-align:center;margin-top:18px;padding:0 0 8px;line-height:1.05;overflow:visible;}
+.ht-sub{font-family:'Rebok',sans-serif;font-style:italic;font-size:clamp(2.2rem,min(6.5vw,8.5vh),5.2rem);color:var(--gold);display:block;text-align:center;margin-top:18px;padding:0 0 8px;line-height:1.05;overflow:visible;}
 .ht-wm{font-family:'Poppins',sans-serif;font-weight:700;font-size:clamp(.75rem,1.4vw,1.1rem);display:block;text-align:center;letter-spacing:.08em;margin-top:2px;}
 .wm-k{color:var(--navy)}
 .wm-s{color:var(--brand)}
@@ -835,6 +835,85 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
 .form-alt{margin-top:16px;font-size:.78rem}
 .ref-code{display:inline-block;margin:12px 0 4px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.3rem;font-weight:700;letter-spacing:.18em;color:var(--navy);background:rgba(65,129,166,.12);padding:8px 16px;border-radius:10px}
 
+/* ===== Audit 11/2026 — čitateľnosť, prehľadnosť, stavy ===== */
+/* Kontrast WCAG AA: značková modrá #4181A6 má na bielej len 4,2:1 → text a odkazy tmavšou */
+a,.board-role,.past-meet-date,.doc-ico,.tag,.news-link{color:var(--brand-deep)}
+.tag.navrh{color:#7A5410}
+[data-theme="dark"] .tag.navrh{color:#F3C77A}
+.btn,.nav-links a.btn{color:#fff}
+/* Úvod: nadpis vždy pod eyebrow, nie vedľa neho */
+.hero-copy{display:flex;flex-direction:column;align-items:center}
+.hero-tagline{display:flex}
+@media(max-width:680px){.foot-brand .vline{display:none}}
+/* Bežný text: Poppins 300 je na malých veľkostiach príliš tenký */
+.news-card p,.doc-info span,.form-card>p,.board-contact,.join-side li,footer li,.foot-bottom,.faq-a{font-weight:400}
+.news-card p{font-size:.9rem;line-height:1.6}
+.doc-info span{font-size:.8rem}
+.muted{opacity:.75;font-size:.9rem}
+.muted.empty{grid-column:1/-1;text-align:center;padding:36px 0;width:100%}
+.noscript-note{background:var(--ink);color:#fff;text-align:center;padding:12px 20px;font-size:.88rem}
+/* Stránka vložená v cudzom ráme */
+[data-framed] body{background:#AFD5EA;display:grid;place-items:center;min-height:100vh;padding:0}
+.framed-note{background:#1B395B;color:#fff;font-weight:600;padding:14px 26px;border-radius:999px}
+/* Hlásenie, keď sa dáta nepodarilo načítať */
+.load-err{grid-column:1/-1;width:100%;text-align:center;padding:34px 20px;border:1.5px dashed rgba(90,130,165,.45);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;gap:14px;font-size:.92rem}
+.meet-hero .load-err{border-color:rgba(175,213,234,.35);color:#CFE4F2}
+.meet-hero .load-err .btn.ghost{color:#fff;border-color:var(--pastel)}
+/* Výbor: karty na stred, aj keď ich je málo */
+.board-grid{display:flex;flex-wrap:wrap;justify-content:center}
+.board-card{flex:1 1 300px;max-width:380px}
+/* Schôdze: ikony, prázdny stav, prehľadný zoznam minulých */
+.mi{width:17px;height:17px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-right:8px;vertical-align:-3px;opacity:.85}
+.meet-meta{flex-direction:row;flex-wrap:wrap;gap:8px 22px}
+.meet-empty{text-align:left}
+.meet-empty .mi{width:34px;height:34px;margin:0 0 14px;color:var(--pastel);opacity:1}
+.meet-empty h3{color:#fff;font-size:1.25rem;margin-bottom:8px}
+.meet-empty p{font-size:.9rem;color:#CFE4F2;max-width:34em}
+.meet-past:empty{display:none}
+.meet-past h3{font-size:1.05rem;margin-bottom:6px}
+.past-meets-list{gap:0;margin-top:0}
+.past-meet-row{display:grid;grid-template-columns:1fr auto;gap:2px 16px;align-items:center;background:transparent;box-shadow:none!important;border-radius:0;padding:14px 0;border-bottom:1px solid rgba(90,130,165,.2)}
+.past-meet-row:last-child{border-bottom:0;padding-bottom:0}
+.past-meet-row:hover{transform:none}
+.past-meet-date{grid-column:1;min-width:0;font-size:.7rem}
+.past-meet-title{grid-column:1}
+.past-meet-row .btn{grid-column:2;grid-row:1/3}
+/* Potvrdenie dotazníka */
+.form-done .btn{margin-top:18px}
+[data-theme="dark"] .btn.ghost{border-color:var(--brand)}
+/* Pätička */
+.foot-privacy{margin-top:34px;font-size:.76rem;line-height:1.6;color:#9FC3DC;text-align:center}
+.foot-privacy b{color:#CFE4F2;font-weight:600}
+.foot-privacy+.foot-bottom{margin-top:18px}
+/* Väčšie dotykové plochy na mobile (min. 44 px) */
+.burger{min-width:44px;min-height:44px;display:none;place-items:center;line-height:1}
+@media(max-width:1023px){.burger{display:grid}}
+@media(max-width:680px){
+  .chip{padding:12px 20px}
+  .btn{padding:14px 24px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .btn-sm{padding:15px 18px}
+  .theme-toggle{width:44px!important;height:44px!important}
+  .nav-inner{gap:8px}
+  .nav-sep{margin:0 2px}
+  .theme-toggle{margin-left:0!important}
+  .nav-brand{font-size:.86rem;letter-spacing:.02em;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .doc-row .btn-sm,.past-meet-row .btn-sm{padding:14px 16px}
+  .seg span{padding:11px 16px}
+  .faq-item summary{min-height:56px}
+  .faq-copy{padding:12px 16px}
+  footer li a{display:inline-block;padding:5px 0}
+}
+/* Tlač: len obsah, bez navigácie a efektov */
+@media print{
+  nav,.tabbar,#backToTop,#scrollProgress,.theme-toggle,.install-app,.chips,.doc-tabs,.faq-search,.faq-copy,#complaintForm,.hero-cta,.skip-link{display:none!important}
+  body{background:#fff!important;color:#000;padding:0!important}
+  .reveal{opacity:1!important;transform:none!important}
+  *{box-shadow:none!important;animation:none!important}
+  .faq-item>.faq-a{display:block}
+  section{padding:18px 0;break-inside:avoid}
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:.8em;word-break:break-all}
+}
+
 /* ===== Inštalácia aplikácie (PWA) ===== */
 .install-app{margin-top:34px;text-align:center}
 .install-btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#1B395B;box-shadow:0 6px 18px rgba(243,173,77,.25)}
@@ -885,10 +964,12 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
 [data-theme="dark"] #memberChart circle[fill="#1B395B"]{fill:#E6F0F8}
 @keyframes htColorShiftDark{0%,100%{color:#E6F0F8}40%{color:#7FB4D8}70%{color:#9CC6E3}}
 </style>
+<noscript><style>.reveal,.join-side li{opacity:1!important;transform:none!important}.sk,.statband,#themeToggle,.faq-search,#complaintForm{display:none!important}main{animation:none}</style></noscript>
 </head>
 <body>
 <div id="scrollProgress" role="progressbar" aria-hidden="true"></div>
 <a href="#main-content" class="skip-link">Preskočiť na obsah</a>
+<noscript><p class="noscript-note">Aktuality, dokumenty, schôdze a dotazník potrebujú zapnutý JavaScript. Sekcia „Moje práva“ a kontakty fungujú aj bez neho.</p></noscript>
 
 <!-- ============ NAV ============ -->
 <nav>
@@ -896,7 +977,7 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
     <img class="nav-logo" src="assets/logo-160.webp" width="46" height="46" alt="Logo ZO OZ KOVO Sedita">
     <div class="nav-sep"></div>
     <div class="nav-brand">ZO OZ KOVO <span class="sig">Sedita</span></div>
-    <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <button class="burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">☰</button>
     <div class="nav-links" id="navLinks">
       <a href="#aktuality" data-sec="aktuality">Aktuality</a>
       <a href="#moje-prava" data-sec="moje-prava">Moje práva</a>
@@ -944,7 +1025,7 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
 <div class="statband reveal">
   <div class="wrap"><div class="stat-card">
     <div style="width:100%">
-      <div class="stat-num" id="memberCount">0</div>
+      <div class="stat-num" id="memberCount">—</div>
       <div class="stat-label">Členov organizácie</div>
       <div class="stat-meta">
         <div><b id="newMembers">+0</b><span>za 12 mesiacov</span></div>
@@ -968,12 +1049,12 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
       <p>Monitoring legislatívy, miezd a sociálnych tém — výhradne z oficiálnych štátnych a inštitucionálnych zdrojov.</p>
     </div>
     <div class="chips reveal" id="newsChips">
-      <button class="chip active" data-cat="all">Všetko</button>
-      <button class="chip" data-cat="mzdy">Mzdy a odvody</button>
-      <button class="chip" data-cat="legislativa">Zákonník práce</button>
-      <button class="chip" data-cat="rodicia">Rodičia</button>
-      <button class="chip" data-cat="bozp">BOZP</button>
-      <button class="chip" data-cat="odbory">Odborové novinky</button>
+      <button class="chip active" type="button" aria-pressed="true" data-cat="all">Všetko</button>
+      <button class="chip" type="button" aria-pressed="false" data-cat="mzdy">Mzdy a odvody</button>
+      <button class="chip" type="button" aria-pressed="false" data-cat="legislativa">Zákonník práce</button>
+      <button class="chip" type="button" aria-pressed="false" data-cat="rodicia">Rodičia</button>
+      <button class="chip" type="button" aria-pressed="false" data-cat="bozp">BOZP</button>
+      <button class="chip" type="button" aria-pressed="false" data-cat="odbory">Odborové novinky</button>
     </div>
     <div class="news-grid" id="newsGrid" aria-busy="true"><div class="sk sk-card" aria-hidden="true"><i class="sk-l w30"></i><i class="sk-l w80 h"></i><i class="sk-l"></i><i class="sk-l w60"></i></div><div class="sk sk-card" aria-hidden="true"><i class="sk-l w30"></i><i class="sk-l w80 h"></i><i class="sk-l"></i><i class="sk-l w60"></i></div><div class="sk sk-card" aria-hidden="true"><i class="sk-l w30"></i><i class="sk-l w80 h"></i><i class="sk-l"></i><i class="sk-l w60"></i></div><div class="sk sk-card" aria-hidden="true"><i class="sk-l w30"></i><i class="sk-l w80 h"></i><i class="sk-l"></i><i class="sk-l w60"></i></div><div class="sk sk-card" aria-hidden="true"><i class="sk-l w30"></i><i class="sk-l w80 h"></i><i class="sk-l"></i><i class="sk-l w60"></i></div><div class="sk sk-card" aria-hidden="true"><i class="sk-l w30"></i><i class="sk-l w80 h"></i><i class="sk-l"></i><i class="sk-l w60"></i></div></div>
     <div class="verified reveal"><span>✓ Každá položka má zdroj, dátum a priamy odkaz na originál · rozlišujeme PLATÍ vs. NAVRHOVANÉ</span></div>
@@ -1051,10 +1132,10 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
       <p>Všetko na jednom mieste — pripravené na stiahnutie a vytlačenie.</p>
     </div>
     <div class="doc-tabs reveal" id="docTabs">
-      <button class="chip active" data-doc="all">Všetky</button>
-      <button class="chip" data-doc="kz">Kolektívna zmluva</button>
-      <button class="chip" data-doc="prihlasky">Prihlášky</button>
-      <button class="chip" data-doc="tlaciva">Ostatné tlačivá</button>
+      <button class="chip active" type="button" aria-pressed="true" data-doc="all">Všetky</button>
+      <button class="chip" type="button" aria-pressed="false" data-doc="kz">Kolektívna zmluva</button>
+      <button class="chip" type="button" aria-pressed="false" data-doc="prihlasky">Prihlášky</button>
+      <button class="chip" type="button" aria-pressed="false" data-doc="tlaciva">Ostatné tlačivá</button>
     </div>
     <div class="doc-grid" id="docGrid" aria-busy="true"><div class="sk sk-row" aria-hidden="true"><i class="sk-ico"></i><span><i class="sk-l w70"></i><i class="sk-l w40"></i></span></div><div class="sk sk-row" aria-hidden="true"><i class="sk-ico"></i><span><i class="sk-l w70"></i><i class="sk-l w40"></i></span></div><div class="sk sk-row" aria-hidden="true"><i class="sk-ico"></i><span><i class="sk-l w70"></i><i class="sk-l w40"></i></span></div><div class="sk sk-row" aria-hidden="true"><i class="sk-ico"></i><span><i class="sk-l w70"></i><i class="sk-l w40"></i></span></div></div>
   </div>
@@ -1191,6 +1272,7 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
         <li><a href="#dokumenty">Dokumenty</a></li>
         <li><a href="#schodze">Schôdze</a></li>
         <li><a href="#vybor">Výbor</a></li>
+        <li><a href="#dotaznik">Anonymný dotazník</a></li>
       </ul>
     </div>
     <div>
@@ -1198,7 +1280,6 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
       <ul>
         <li><a href="mailto:kovosedita@outlook.sk" style="color:#CFE4F2">kovosedita@outlook.sk</a></li>
         <li>Sereď, Slovensko</li>
-        <li><a href="#">Facebook stránka</a></li>
       </ul>
     </div>
   </div>
@@ -1209,7 +1290,8 @@ fieldset.field legend{display:block;font-size:.72rem;letter-spacing:.16em;text-t
     </button>
     <p class="install-ios" id="installIos" hidden>Pridajte si nás na plochu: v Safari ťuknite na <b>Zdieľať</b> a zvoľte <b>Pridať na plochu</b>.</p>
   </div>
-  <div class="wrap foot-bottom">© 2026 ZO OZ KOVO Sedita · Všetky práva vyhradené</div>
+  <p class="wrap foot-privacy"><b>Súkromie:</b> web nepoužíva cookies, reklamu ani sledovanie návštevnosti a nenačítava nič z cudzích serverov. V prehliadači sa ukladá len voľba svetlého alebo tmavého režimu.</p>
+  <div class="wrap foot-bottom">© <span id="rok">2026</span> ZO OZ KOVO Sedita · Všetky práva vyhradené</div>
 </footer>
 
 <script src="assets/app.js" defer></script>

@@ -32,6 +32,11 @@ Vizuálna identita podľa skillu `kovo-sedita-brand` (manuál v4.0): vždy plný
 - Anonymný dotazník (`#dotaznik`) posiela akciu `complaint` so `source: "dotaznik"`; formát a kód pre
   Apps Script je v `docs/apps-script-dotaznik.md`. Do dotazníka nepridávaj polia, ktoré by človeka
   identifikovali, a koncept drž len v `sessionStorage`.
+- Ukážkové dáta (`DEMO` v `assets/app.js`) sa zobrazujú len pri vývoji (`file://`, `localhost`); test správania
+  živého webu: `?nodemo`. Na živom webe sa pri výpadku API ukáže hlásenie „Skúsiť znova“, nikdy vymyslený obsah.
+- Odkazy z API len cez `safeUrl()`, zoznamy cez `asList()`, cieľ `#kotvy` cez `hashTarget()`; požiadavky cez
+  `fetchT()` (časový limit). Kontroly v prehliadači nie sú ochrana — tú robí Apps Script.
+- Text na bielom podklade: `var(--brand-deep)`, nie `var(--brand)` (kontrast WCAG AA). Dotykové plochy na mobile ≥ 44 px.
 - FAQ v sekcii „Moje práva“ a JSON-LD `FAQPage` v `<head>` upravuj spolu.
 - Pred pushom over v prehliadači (Playwright): žiadne JS chyby, mobil 390 px bez horizontálneho
   scrollu, svetlý aj tmavý režim.

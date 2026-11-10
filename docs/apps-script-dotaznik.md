@@ -39,6 +39,13 @@ function ulozDotaznik_(d) {
   const text = String(d.text || "").trim().slice(0, 5000);
   if (text.length < 10) return json_({ ok: false, message: "Príliš krátky text" });
 
+  // Prijať len hodnoty, ktoré formulár naozaj ponúka — čokoľvek iné sa zapíše ako „Iné“
+  const TYPY = ["Otázka", "Podnet", "Sťažnosť", "Nedostatok BOZP", "Návrh na zlepšenie"];
+  const NALIEHAVOSTI = ["Bežné", "Dôležité", "Hrozí úraz / škoda"];
+  if (TYPY.indexOf(d.typ) < 0) d.typ = "Iné";
+  if (NALIEHAVOSTI.indexOf(d.naliehavost) < 0) d.naliehavost = "Bežné";
+  if (!/^[A-HJ-NP-Z2-9]{6}$/.test(String(d.kod || ""))) d.kod = "";
+
   // Jednoduchá ochrana proti zahlteniu: max. 30 príspevkov za 10 minút
   const cache = CacheService.getScriptCache();
   const n = Number(cache.get("dotaznik-pocet") || 0);
@@ -83,6 +90,17 @@ function json_(o) {
 
 Po úprave: **Nasadiť → Spravovať nasadenia → upraviť existujúce nasadenie → Nová verzia**.
 URL sa nezmení, web netreba meniť.
+
+## Bezpečnosť — čo stráži web a čo musí strážiť Apps Script
+
+Adresa Apps Scriptu je vo verejnom kóde webu, takže na ňu môže poslať požiadavku ktokoľvek, aj mimo
+formulára. Kontroly v prehliadači (dĺžka textu, odstup 30 s, skryté pole proti robotom) sú len pohodlie
+pre poctivého používateľa. **Skutočná ochrana je kód vyššie:** limit počtu príspevkov, kontrola dĺžky,
+zoznam povolených hodnôt a ochrana proti vzorcom. Bez neho vie útočník tabuľku zaplniť alebo do nej
+vložiť vzorec.
+
+Rovnako pri čítaní: `doGet` má vracať len to, čo má byť verejné (aktuality, dokumenty, schôdze, výbor,
+počet členov) — nikdy nie obsah hárka „Dotazník“ ani zoznam členov.
 
 ## Anonymita — čo platí a čo nie
 
